@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+<title>Strength + Hypertrophy Timer</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;--soft:#eff6ff;--danger:#dc2626;--good:#16a34a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.app{max-width:720px;margin:auto;padding:16px 14px 40px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px}
+select,button{font:inherit;border-radius:10px;border:1px solid var(--line);background:#fff;padding:10px 12px}
+button{cursor:pointer;font-weight:600}.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.danger{color:var(--danger)}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}.tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}.days button{font-size:12px;padding:9px 4px}.days button.active{background:#111827;color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px #00000008}
+.timer{text-align:center;padding:18px}.phase{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.time{font-size:54px;font-weight:800;font-variant-numeric:tabular-nums;margin:4px 0 12px}
+.controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.controls button{min-width:100px}
+.progress{height:7px;background:#e5e7eb;border-radius:10px;overflow:hidden;margin-top:12px}.bar{height:100%;background:var(--accent);width:0%;transition:.2s}
+.exercise-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.exercise-name{font-size:20px;font-weight:800}.badge{font-size:11px;background:var(--soft);color:var(--accent);padding:5px 7px;border-radius:8px;white-space:nowrap}
+.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0}.meta div{background:#f9fafb;border-radius:10px;padding:9px}.meta b{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}.meta span{font-weight:700;font-size:13px}
+h3{font-size:13px;margin:15px 0 6px}.text{font-size:14px;line-height:1.45}.cue{padding:10px;background:#fff7ed;border-left:3px solid #f59e0b;border-radius:7px;font-size:13px}
+.sets{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.set{padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}.set.done{background:#dcfce7;border-color:#86efac}
+.next{width:100%;margin-top:12px}.info{display:grid;grid-template-columns:1fr 1fr;gap:10px}.small{font-size:12px;color:var(--muted)}
+.hidden{display:none}.notice{font-size:12px;color:var(--muted);line-height:1.4}.check{display:flex;align-items:center;gap:8px;margin-top:10px}
+@media(max-width:520px){.days{grid-template-columns:repeat(5,1fr)}.meta{grid-template-columns:repeat(2,1fr)}.time{font-size:48px}.exercise-name{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div><h1>Strength + Hypertrophy</h1><div class="sub">45-minute guided workout timer</div></div>
+    <button onclick="resetWorkout()">Reset</button>
+  </div>
+
+  <div class="tabs" id="weeks"></div>
+  <div class="days" id="days"></div>
+
+  <div class="card timer">
+    <div class="phase" id="phase">Ready</div>
+    <div class="time" id="clock">45:00</div>
+    <div class="controls">
+      <button class="primary" id="startBtn" onclick="toggleTimer()">Start</button>
+      <button onclick="skip()">Skip</button>
+      <button onclick="addTime(30)">+30s</button>
+    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="exercise-head">
+      <div><div class="small" id="dayLabel"></div><div class="exercise-name" id="exercise"></div></div>
+      <div class="badge" id="badge"></div>
+    </div>
+    <div class="meta">
+      <div><b>Sets × Reps</b><span id="sets"></span></div>
+      <div><b>RIR</b><span id="rir"></span></div>
+      <div><b>Rest</b><span id="rest"></span></div>
+      <div><b>Tempo</b><span id="tempo"></span></div>
+    </div>
+    <h3>Primary muscles</h3><div class="text" id="muscles"></div>
+    <h3>Why</h3><div class="text" id="why"></div>
+    <h3>Form cues</h3><div class="cue" id="cues"></div>
+    <h3>Sets completed</h3><div class="sets" id="setButtons"></div>
+    <button class="primary next" onclick="completeAndNext()">Complete set / Next</button>
+  </div>
+
+  <div class="card info">
+    <div><b>Session</b><div class="small" id="sessionInfo"></div></div>
+    <div><b>Safety</b><div class="small">Keep 1–3 RIR. Stop if sharp pain, instability, locking or worsening knee symptoms.</div></div>
+  </div>
+  <div class="card notice">
+    <b>Timer behavior:</b> Start begins the 45-minute session. After completing a set, the app starts the prescribed rest timer. You can skip rest, add 30 seconds, or reset at any time. Your completed sets are saved for the current session in this browser.
+  </div>
+</div>
+
+<script>
+const W = {
+A:[
+{name:"Day 1 — Upper Push + Pull",ex:[
+["Barbell Bench Press","3 × 6–8","2","2–2.5 min","2-1-1","Chest, triceps, anterior delts","Primary upper-body strength movement.","Shoulder blades down/back; feet planted; bar toward lower-mid chest; don't bounce.","compound"],
+["Barbell Bent-Over Row","3 × 6–10","2","2 min","2-1-1","Lats, rhomboids, traps, rear delts, biceps","High-value horizontal pull.","Brace hard; neutral spine; hips fixed; pull toward lower ribs.","compound"],
+["Incline DB Press","2 × 8–12","1–2","60 sec","2-1-1","Upper chest, anterior delts, triceps","Adds chest volume.","Stable shoulder blades; elbows about 30–45° from torso.","accessory"],
+["Chest-Supported DB Row","2 × 10–12","1–2","60 sec","2-1-1","Upper back, lats, rear delts","Back volume with lower-back recovery.","Chest supported; pull elbows toward hips.","accessory"],
+["DB Lateral Raise","2 × 12–15","2","45 sec","2-1-2","Lateral delts","Shoulder-width development.","Light DBs; no swinging; raise in scapular plane.","accessory"]]},
+{name:"Day 2 — Lower Quad/Knee + Core",ex:[
+["Barbell Box Squat","3 × 6–8","2–3","2 min","3-1-1","Quads, glutes, adductors","Controlled squat depth and consistent mechanics.","Brace; knees track over toes; touch bench lightly; never crash onto it.","knee"],
+["Reverse DB Lunge","2 × 8–10/leg","2–3","90 sec","3-1-1","Quads, glutes, hamstrings","Unilateral strength and knee/hip stability.","Step backward; stable front foot; knee follows toes; pain-free range.","knee"],
+["Barbell Hip Thrust","3 × 8–12","1–2","90 sec","2-1-2","Glutes","Glute strength with pelvic control.","Ribs down; squeeze glutes; avoid lumbar hyperextension.","posterior"],
+["Standing DB Calf Raise","2 × 10–15","1–2","45 sec","2-1-2","Calves","Calf and ankle strength.","Full comfortable stretch; pause at top; don't bounce.","accessory"],
+["Dead Bug","2 × 6–8/side","controlled","30 sec","slow","Deep core","Trains ribcage-pelvis control.","Exhale; gently flatten lower back; move slowly.","core"]]},
+{name:"Day 3 — Upper Pull + Arms",ex:[
+["One-Arm DB Row","3 × 8–12/side","2","75–90 sec","2-1-1","Lats, rhomboids, traps, biceps","Excellent lat-focused pull.","Square hips; pull toward hip; don't rotate torso.","compound"],
+["Incline DB Bench Press","3 × 8–10","2","90 sec","2-1-1","Upper chest, shoulders, triceps","Second chest exposure.","Don't let shoulders roll forward at bottom.","compound"],
+["Barbell Romanian Deadlift — Light/Moderate","2 × 8–10","3","90 sec","3-1-1","Hamstrings, glutes, erectors","Posterior-chain exposure without a second heavy leg day.","Soft knees; hips back; bar close; neutral spine.","posterior"],
+["Incline DB Curl","2 × 10–12","1–2","45 sec","2-1-2","Biceps","Long-length biceps stimulus.","Upper arm relatively fixed; no swing.","accessory"],
+["DB Rear-Delt Raise","2 × 12–15","1–2","45 sec","2-1-2","Rear delts, upper back","Shoulder balance.","Light DBs; move arms rather than shrugging.","accessory"],
+["DB Hammer Curl","2 × 8–12","1–2","45 sec","2-1-2","Brachialis, biceps, forearms","Arm thickness and grip.","Neutral wrist; elbows close.","accessory"]]},
+{name:"Day 4 — Posterior Chain + Knee",ex:[
+["Barbell Romanian Deadlift","3 × 6–8","2","2 min","3-1-1","Hamstrings, glutes","Primary posterior-chain strength movement.","Brace; hips back; bar close; stop when hamstrings limit depth.","posterior"],
+["Front-Foot-Elevated Reverse Split Squat","2 × 8–10/leg","2–3","90 sec","3-1-1","Glutes, quads","Unilateral leg strength.","Stable front foot; knee follows toes; pain-free range.","knee"],
+["Barbell Glute Bridge","2 × 10–15","1–2","60 sec","2-2-2","Glutes","Glute volume without another heavy hinge.","Ribs down; squeeze glutes; no lumbar hyperextension.","posterior"],
+["Single-Leg Calf Raise Holding DB","2 × 10–15/side","1–2","30 sec","2-1-2","Calves","Unilateral calf and ankle control.","Stable foot; controlled full range.","accessory"],
+["Side Plank","2 × 20–40 sec/side","controlled","30 sec","controlled","Obliques, lateral core, glute medius","Pelvic and trunk stability.","Straight line; squeeze glute; don't let hip sag.","core"]]},
+{name:"Day 5 — Full Body Athletic Strength",ex:[
+["Standing Barbell Overhead Press","3 × 6–8","2","2 min","2-1-1","Delts, triceps, upper chest","Fundamental overhead strength.","Glutes tight; ribs down; brace; bar travels vertically; no backbend.","compound"],
+["Pendlay Row","3 × 6–8","2","2 min","controlled","Back, rear delts, biceps","Powerful horizontal pulling.","Neutral spine; torso fixed; bar starts from floor each rep.","compound"],
+["Goblet Squat to Bench","2 × 10–12","3","75 sec","3-1-1","Quads, glutes","Low-load squat pattern and knee exposure.","Brace; knees track naturally; comfortable depth.","knee"],
+["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder-width development.","No swinging.","accessory"],
+["Close-Grip Push-Up on Bench","2 × 8–15","2","45 sec","2-1-1","Triceps, chest","Scalable pressing volume.","Straight body; elbows about 30–45°; brace.","accessory"],
+["Suitcase Hold","2 × 30–45 sec/side","controlled","30 sec","controlled","Obliques, grip, trunk","Athletic anti-lateral-flexion strength.","Stand tall; don't lean toward the weight.","core"]]}
+],
+B:[],
+C:[]
+};
+
+// Generate B/C from the complete program using exercise substitutions while preserving movement patterns.
+const substitutions = {
+B:[
+[["Incline DB Press","3 × 8–10","2","90 sec","2-1-1","Upper chest, anterior delts, triceps","Different pressing angle for moderate-rep hypertrophy.","Stable shoulder blades; elbows 30–45°.","compound"],["One-Arm DB Row","3 × 8–12","2","90 sec","2-1-1","Lats, upper back, biceps","Unilateral pull and stability.","Square hips; pull toward hip.","compound"],["Flat DB Press","2 × 10–12","1–2","60 sec","2-1-1","Chest, triceps","Additional chest volume.","Controlled bottom; shoulders packed.","accessory"],["Chest-Supported DB Row","2 × 10–12","1–2","60 sec","2-1-1","Upper back, lats","Low-back-friendly back volume.","Chest supported; pull elbows back.","accessory"],["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder width.","No swinging.","accessory"]],
+[["Goblet Squat to Bench","3 × 8–12","3","90 sec","3-1-1","Quads, glutes","Moderate-load controlled knee pattern.","Stable foot; knees track over toes; comfortable depth.","knee"],["Reverse DB Lunge","2 × 10/leg","2–3","90 sec","3-1-1","Quads, glutes, hamstrings","Unilateral stability.","Step back; controlled descent.","knee"],["DB Hip Thrust","3 × 10–12","1–2","90 sec","2-1-2","Glutes","Glute volume with dumbbell loading.","Ribs down; squeeze glutes.","posterior"],["Standing DB Calf Raise","2 × 12–15","1–2","45 sec","2-1-2","Calves","Calf strength.","Full comfortable range.","accessory"],["Dead Bug","2 × 8/side","controlled","30 sec","slow","Deep core","Bracing and pelvic control.","Exhale; lower back controlled.","core"]],
+[["Chest-Supported DB Row","3 × 8–12","2","90 sec","2-1-1","Lats, upper back, rear delts","Supported horizontal pull.","Chest supported; controlled stretch.","compound"],["Flat DB Press","3 × 8–12","2","90 sec","2-1-1","Chest, triceps","Horizontal press variation.","Shoulders stable; controlled bottom.","compound"],["Barbell RDL — Light","2 × 8–10","3","90 sec","3-1-1","Hamstrings, glutes","Low-fatigue hinge.","Hips back; bar close.","posterior"],["DB Curl","2 × 10–15","1–2","45 sec","2-1-2","Biceps","Simple progressive arm work.","No swinging.","accessory"],["Rear-Delt Raise","2 × 12–15","1–2","45 sec","2-1-2","Rear delts","Shoulder balance.","Don't shrug.","accessory"],["Hammer Curl","2 × 10–12","1–2","45 sec","2-1-2","Brachialis, biceps","Arm thickness.","Neutral wrist.","accessory"]],
+[["DB Romanian Deadlift","3 × 8–10","2","2 min","3-1-1","Hamstrings, glutes","Different loading profile for hinge.","Brace; hips back; neutral spine.","posterior"],["B-Stance RDL","2 × 8–10/side","2","90 sec","3-1-1","Hamstrings, glutes","Unilateral posterior-chain loading.","Most weight on front leg; hips square.","posterior"],["DB Glute Bridge","2 × 12–15","1–2","60 sec","2-2-2","Glutes","Glute volume.","Ribs down; no lumbar extension.","posterior"],["Single-Leg Calf Raise","2 × 12–15/side","1–2","30 sec","2-1-2","Calves","Ankle control.","Stable foot.","accessory"],["Side Plank","2 × 30–40 sec/side","controlled","30 sec","controlled","Obliques, glute medius","Trunk and pelvic stability.","No hip sag.","core"]],
+[["Paused Barbell Bench","3 × 6–8","2","2 min","2-2-1","Chest, triceps, anterior delts","Pause improves control and force from the bottom.","Pause lightly on chest; stay braced.","compound"],["Barbell Row","3 × 8–10","2","2 min","2-1-1","Back, biceps, rear delts","Strong horizontal pull.","Brace; pull toward lower ribs.","compound"],["Goblet Squat","2 × 10–12","3","75 sec","3-1-1","Quads, glutes","Controlled low-load knee work.","Comfortable depth; stable foot.","knee"],["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder width.","No swinging.","accessory"],["DB Overhead Triceps Extension","2 × 10–15","1–2","45 sec","2-1-2","Triceps","Direct triceps work.","Ribs down; elbows controlled.","accessory"],["Suitcase Hold","2 × 30–45 sec/side","controlled","30 sec","controlled","Obliques, grip, trunk","Anti-lateral-flexion strength.","Stand tall.","core"]]
+],
+C:[
+[["Paused Barbell Bench","3 × 6–8","2","2 min","2-2-1","Chest, triceps, anterior delts","Paused strength variation.","Stable shoulder blades; pause without relaxing.","compound"],["Chest-Supported DB Row","3 × 8–10","2","90 sec","2-1-1","Upper back, lats","Supported pull with controlled reps.","Chest supported; pull toward hips.","compound"],["Low-Incline DB Press","2 × 10–12","1–2","60 sec","3-1-1","Upper chest, triceps","Longer eccentric for stimulus.","Controlled bottom; shoulders stable.","accessory"],["One-Arm DB Row","2 × 10/side","1–2","60 sec","2-2-1","Lats, upper back","Peak contraction emphasis.","Pause at top; no torso rotation.","accessory"],["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder width.","No swing.","accessory"]],
+[["Paused Goblet Squat to Bench","3 × 8–10","3","90 sec","3-2-1","Quads, glutes","Tempo and pause increase control without maximal load.","Pause gently; knees track toes; pain-free range.","knee"],["Reverse Split Squat","2 × 8–10/leg","2–3","90 sec","3-1-1","Quads, glutes","Controlled unilateral work.","Stable foot; comfortable depth.","knee"],["Barbell Hip Thrust — 2-sec squeeze","3 × 8–12","1–2","90 sec","2-2-2","Glutes","Peak contraction emphasis.","Ribs down; posterior pelvic control.","posterior"],["Calf Raise — 2-sec top pause","2 × 12–15","1–2","45 sec","2-2-2","Calves","Controlled calf strength.","Don't bounce.","accessory"],["Dead Bug","2 × 8/side","controlled","30 sec","slow","Deep core","Bracing and pelvic control.","Exhale; lower back controlled.","core"]],
+[["One-Arm DB Row — 2-sec squeeze","3 × 8–12/side","2","75–90 sec","2-2-1","Lats, upper back, biceps","Peak contraction emphasis.","Pause at top; no rotation.","compound"],["Incline DB Press — 3-sec eccentric","3 × 8–10","2","90 sec","3-1-1","Upper chest, shoulders, triceps","Controlled eccentric increases difficulty without excessive load.","Shoulders packed; smooth bottom.","compound"],["Light DB RDL","2 × 10","3","90 sec","3-1-1","Hamstrings, glutes","Technique-focused hinge.","Hips back; neutral spine.","posterior"],["Incline DB Curl — 3-sec eccentric","2 × 10–12","1–2","45 sec","3-1-2","Biceps","Controlled long-length work.","No swing.","accessory"],["Rear-Delt Raise","2 × 12–15","1–2","45 sec","2-1-2","Rear delts","Shoulder balance.","No shrug.","accessory"],["Hammer Curl","2 × 10–12","1–2","45 sec","2-1-2","Brachialis, biceps","Arm thickness.","Neutral wrist.","accessory"]],
+[["Barbell RDL — 3-sec eccentric","3 × 6–8","2","2 min","3-1-1","Hamstrings, glutes","Controlled hinge strength.","Bar close; hips back; neutral spine.","posterior"],["Reverse Lunge — controlled eccentric","2 × 8–10/leg","2–3","90 sec","3-1-1","Quads, glutes","Controlled unilateral knee loading.","Stable foot; knee tracks toes.","knee"],["Barbell Glute Bridge — 2-sec squeeze","2 × 12–15","1–2","60 sec","2-2-2","Glutes","Glute contraction without heavy loading.","Ribs down; no lumbar extension.","posterior"],["Calf Raise","2 × 12–15","1–2","45 sec","2-1-2","Calves","Calf strength.","Full comfortable range.","accessory"],["Side Plank","2 × 30–45 sec/side","controlled","30 sec","controlled","Obliques, glute medius","Lateral trunk and pelvic stability.","No hip sag.","core"]],
+[["Standing DB Overhead Press","3 × 8–10","2","90 sec","2-1-1","Delts, triceps","Moderate-rep overhead strength.","Ribs down; glutes tight; no backbend.","compound"],["Pendlay Row","3 × 6–8","2","2 min","controlled","Back, rear delts, biceps","Powerful horizontal pull.","Neutral spine; bar starts from floor.","compound"],["Goblet Squat — 3-sec eccentric","2 × 10","3","75 sec","3-1-1","Quads, glutes","Controlled knee exposure.","Pain-free depth; stable foot.","knee"],["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder width.","No swing.","accessory"],["Close-Grip Bench Press","2 × 8–10","2","60 sec","2-1-1","Triceps, chest","Triceps-focused compound.","Shoulder blades stable; elbows controlled.","accessory"],["Suitcase Hold","2 × 30–45 sec/side","controlled","30 sec","controlled","Obliques, grip, trunk","Athletic trunk stability.","Stand tall; don't lean.","core"]]
+]
+]};
+
+function normalize(){
+  W.B = W.B.length ? W.B : substitutions.B.map((exs,i)=>({name:W.A[i].name,ex:exs}));
+  W.C = W.C.length ? W.C : substitutions.C.map((exs,i)=>({name:W.A[i].name,ex:exs}));
+}
+normalize();
+
+let week="A", day=0, ex=0, completed=[], timer=null, seconds=2700, mode="session";
+const weeks=document.getElementById("weeks"), days=document.getElementById("days");
+["A","B","C"].forEach(w=>{let b=document.createElement("button");b.textContent="Week "+w;b.onclick=()=>{week=w;day=0;ex=0;resetWorkout(false);render()};weeks.appendChild(b)});
+
+function renderDays(){days.innerHTML="";W[week].forEach((d,i)=>{let b=document.createElement("button");b.textContent="Day "+(i+1);b.className=i===day?"active":"";b.onclick=()=>{day=i;ex=0;resetWorkout(false);render()};days.appendChild(b)})}
+function parseRest(s){let n=parseFloat(s); if(s.includes("min")) return Math.round(n*60); return Math.round(n)}
+function repsCount(s){let m=s.match(/(\d+)\s*×/);return m?+m[1]:2}
+function current(){return W[week][day].ex[ex]}
+function render(){
+  renderDays(); let e=current();
+  document.getElementById("dayLabel").textContent=W[week][day].name;
+  document.getElementById("exercise").textContent=e[0];
+  document.getElementById("sets").textContent=e[1];
+  document.getElementById("rir").textContent=e[2];
+  document.getElementById("rest").textContent=e[3];
+  document.getElementById("tempo").textContent=e[4];
+  document.getElementById("muscles").textContent=e[5];
+  document.getElementById("why").textContent=e[6];
+  document.getElementById("cues").textContent=e[7];
+  document.getElementById("badge").textContent=e[8]==="knee"?"KNEE FOCUS":e[8].toUpperCase();
+  document.getElementById("sessionInfo").textContent=`Week ${week} • Day ${day+1} • Exercise ${ex+1} of ${W[week][day].ex.length}`;
+  const n=repsCount(e[1]);let key=`${week}-${day}-${ex}`, done=JSON.parse(localStorage.getItem("done-"+key)||"[]");
+  let sb=document.getElementById("setButtons");sb.innerHTML="";
+  for(let i=0;i<n;i++){let b=document.createElement("button");b.className="set"+(done.includes(i)?" done":"");b.textContent=`Set ${i+1}`;b.onclick=()=>toggleSet(i);sb.appendChild(b)}
+  updateClock();
+}
+function toggleSet(i){let key=`${week}-${day}-${ex}`,done=JSON.parse(localStorage.getItem("done-"+key)||"[]");done=done.includes(i)?done.filter(x=>x!==i):[...done,i];localStorage.setItem("done-"+key,JSON.stringify(done));render()}
+function completeAndNext(){
+  let key=`${week}-${day}-${ex}`,done=JSON.parse(localStorage.getItem("done-"+key)||"[]"),n=repsCount(current()[1]);
+  if(done.length<n){done.push(done.length);localStorage.setItem("done-"+key,JSON.stringify(done));render()}
+  if(done.length>=n){startRest(parseRest(current()[3]));}
+}
+function startRest(s){clearInterval(timer);mode="rest";seconds=s;document.getElementById("phase").textContent="REST";document.getElementById("startBtn").textContent="Pause";timer=setInterval(()=>{if(seconds>0){seconds--;updateClock()}else{clearInterval(timer);timer=null;mode="session";nextExercise();}},1000);updateClock()}
+function nextExercise(){if(ex<W[week][day].ex.length-1){ex++;}else if(day<4){day++;ex=0;}else{alert("Workout complete. Great session.");ex=0;}render();mode="session";seconds=2700;document.getElementById("phase").textContent="Ready";document.getElementById("startBtn").textContent="Start"}
+function toggleTimer(){
+ if(timer){clearInterval(timer);timer=null;document.getElementById("startBtn").textContent="Resume";return}
+ document.getElementById("startBtn").textContent="Pause";mode="session";
+ timer=setInterval(()=>{if(seconds>0){seconds--;updateClock()}else{clearInterval(timer);timer=null;document.getElementById("phase").textContent="Time complete";document.getElementById("startBtn").textContent="Start"}},1000);
+}
+function skip(){if(mode==="rest"){clearInterval(timer);timer=null;nextExercise()}else{nextExercise()}}
+function addTime(s){seconds+=s;updateClock()}
+function updateClock(){let m=Math.floor(seconds/60),s=seconds%60;document.getElementById("clock").textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;let pct=Math.max(0,Math.min(100,(2700-seconds)/2700*100));document.getElementById("bar").style.width=pct+"%";if(mode==="rest")document.getElementById("phase").textContent="REST"}
+function resetWorkout(full=true){clearInterval(timer);timer=null;seconds=2700;mode="session";document.getElementById("startBtn").textContent="Start";document.getElementById("phase").textContent="Ready";if(full){week="A";day=0;ex=0;render()}}
+render();
+</script>
+</body>
+</html>
