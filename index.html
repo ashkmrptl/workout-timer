@@ -3,51 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#111827">
-<title>Strength + Hypertrophy Timer</title>
+<meta name="theme-color" content="#18233d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Lift Log</title>
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;--soft:#eff6ff;--danger:#dc2626;--good:#16a34a}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-.app{max-width:720px;margin:auto;padding:16px 14px 40px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
-h1{font-size:22px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:3px}
-select,button{font:inherit;border-radius:10px;border:1px solid var(--line);background:#fff;padding:10px 12px}
-button{cursor:pointer;font-weight:600}.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.danger{color:var(--danger)}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}.tabs button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}.days button{font-size:12px;padding:9px 4px}.days button.active{background:#111827;color:#fff}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px #00000008}
-.timer{text-align:center;padding:18px}.phase{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.time{font-size:54px;font-weight:800;font-variant-numeric:tabular-nums;margin:4px 0 12px}
-.controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.controls button{min-width:100px}
-.progress{height:7px;background:#e5e7eb;border-radius:10px;overflow:hidden;margin-top:12px}.bar{height:100%;background:var(--accent);width:0%;transition:.2s}
-.exercise-head{display:flex;justify-content:space-between;gap:10px;align-items:start}.exercise-name{font-size:20px;font-weight:800}.badge{font-size:11px;background:var(--soft);color:var(--accent);padding:5px 7px;border-radius:8px;white-space:nowrap}
-.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0}.meta div{background:#f9fafb;border-radius:10px;padding:9px}.meta b{display:block;font-size:11px;color:var(--muted);margin-bottom:3px}.meta span{font-weight:700;font-size:13px}
-h3{font-size:13px;margin:15px 0 6px}.text{font-size:14px;line-height:1.45}.cue{padding:10px;background:#fff7ed;border-left:3px solid #f59e0b;border-radius:7px;font-size:13px}
-.sets{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.set{padding:8px 11px;border:1px solid var(--line);border-radius:9px;background:#fff}.set.done{background:#dcfce7;border-color:#86efac}
-.next{width:100%;margin-top:12px}.info{display:grid;grid-template-columns:1fr 1fr;gap:10px}.small{font-size:12px;color:var(--muted)}
-.hidden{display:none}.notice{font-size:12px;color:var(--muted);line-height:1.4}.check{display:flex;align-items:center;gap:8px;margin-top:10px}
-@media(max-width:520px){.days{grid-template-columns:repeat(5,1fr)}.meta{grid-template-columns:repeat(2,1fr)}.time{font-size:48px}.exercise-name{font-size:18px}}
+:root{--bg:#f3f5fa;--card:#fff;--text:#17213a;--muted:#77829a;--line:#e6eaf1;--accent:#4967f2;--navy:#18233d;--soft:#edf0ff;--danger:#df5163;--good:#22ad78;--partial:#edaa37}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}.app{width:100%;max-width:720px;margin:auto;padding:calc(14px + env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom))}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:4px 2px 22px}.top h1{font-size:25px;letter-spacing:-.8px;margin:0}.sub,.small{color:var(--muted);font-size:12px;margin-top:4px}.top .sub:before{content:"TODAY · ";font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--accent)}button{min-height:44px;font:inherit;border-radius:13px;border:1px solid var(--line);background:#fff;padding:10px 13px;cursor:pointer;font-weight:700;color:var(--text);touch-action:manipulation}.primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 5px 12px #4967f238}.danger{color:var(--danger);background:#fff7f8;border-color:#fee2e6}.hidden{display:none!important}.app-tabs{position:fixed;z-index:10;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));max-width:696px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px;background:#18233df2;border:1px solid #ffffff20;border-radius:19px;box-shadow:0 12px 30px #1118273b;backdrop-filter:blur(16px)}.app-tabs button{min-height:50px;border:0;border-radius:14px;background:transparent;color:#b8c2da;font-size:13px}.app-tabs button:before{display:block;font-size:17px;line-height:16px}.app-tabs button[data-tab="workout"]:before{content:"⌁"}.app-tabs button[data-tab="tracking"]:before{content:"◷"}.app-tabs button.active{background:#fff;color:var(--navy);box-shadow:0 2px 8px #00000025}.weeks,.days{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}.days{grid-template-columns:repeat(5,1fr);gap:6px}.weeks button,.days button{min-height:42px;padding:7px 4px;font-size:12px}.weeks button.active{background:var(--accent);color:#fff;border-color:var(--accent)}.days button{background:transparent;border:0;color:var(--muted)}.days button.active{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:0 4px 10px #18233d29}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:13px;box-shadow:0 5px 18px #26314d0b}.timers{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px}.timer{padding:8px 3px;text-align:center}.timer.rest{background:#fff9eb;border:1px solid #fff0c7;border-radius:15px}.phase{font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.09em}.time{font-size:31px;font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums;margin:7px 0 11px}.controls{display:flex;justify-content:center;gap:5px;flex-wrap:wrap}.controls button{min-height:34px;padding:6px 8px;border-radius:9px;font-size:11px}.controls .primary{box-shadow:none}.progress{height:5px;background:#e9edf4;border-radius:8px;overflow:hidden;margin-top:12px}.bar{height:100%;background:var(--accent);width:0%;transition:.2s}.rest .bar{background:var(--partial)}.exercise-head{display:flex;justify-content:space-between;gap:8px;align-items:start}.exercise-name{font-size:22px;line-height:1.12;letter-spacing:-.55px;font-weight:800}.badge{font-size:10px;font-weight:800;background:var(--soft);color:var(--accent);padding:6px 7px;border-radius:8px;white-space:nowrap}.meta{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:16px 0}.meta div{background:#f6f8fc;border-radius:12px;padding:9px 7px}.meta b{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}.meta span{font-weight:800;font-size:12px}.text{font-size:14px;line-height:1.5}h3{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:17px 0 6px}.cue{padding:11px;background:#fff8e9;border-left:3px solid var(--partial);border-radius:8px;font-size:13px;line-height:1.45}.sets{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.set{min-height:42px;min-width:69px;padding:7px 11px;border-radius:11px}.set.done{background:#e2f8ef;border-color:#a9e8ce;color:#167b53}.next{min-height:52px;width:100%;margin-top:15px;border-radius:14px;font-size:15px}.info{display:grid;grid-template-columns:1fr 1fr;gap:12px}.notice{font-size:12px;color:var(--muted);line-height:1.5}.calendar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.calendar-header h2{font-size:17px;margin:0}.calendar-header button{min-height:38px;min-width:38px;padding:5px;font-size:22px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.dow{font-size:10px;color:var(--muted);font-weight:800;text-align:center;padding:3px 0}.calendar-day{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid transparent}.calendar-day.future,.calendar-day.recovery{background:#f3f5f8;color:#a0a8b8}.calendar-day.missed{background:#feeaec;color:#b23b4c}.calendar-day.partial{background:#fff1d2;color:#a96900}.calendar-day.done{background:#ddf7ec;color:#157451}.calendar-day.today{outline:2px solid var(--accent);outline-offset:1px}.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:15px}.key{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:4px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.stat{background:#f6f8fc;border-radius:13px;padding:11px 5px;text-align:center}.stat b{font-size:21px;display:block}.stat span{font-size:10px;color:var(--muted)}@media(min-width:600px){.app{padding-left:24px;padding-right:24px}.app-tabs{left:50%;right:auto;width:calc(100% - 48px);transform:translateX(-50%)}}@media(max-width:380px){.app{padding-left:12px;padding-right:12px}.top h1{font-size:22px}.top .danger{padding:8px 9px;font-size:12px}.meta{grid-template-columns:repeat(2,1fr)}.time{font-size:28px}.controls button{font-size:10px;padding:6px}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="top">
     <div><h1>Strength + Hypertrophy</h1><div class="sub">45-minute guided workout timer</div></div>
-    <button onclick="resetWorkout()">Reset</button>
+    <button class="danger" onclick="resetToday()">Reset today</button>
   </div>
 
-  <div class="tabs" id="weeks"></div>
+  <nav class="app-tabs"><button class="active" data-tab="workout" onclick="setTab('workout')">Workout</button><button data-tab="tracking" onclick="setTab('tracking')">Tracking</button></nav>
+
+  <main id="workoutTab">
+  <div class="weeks" id="weeks"></div>
   <div class="days" id="days"></div>
-
-  <div class="card timer">
-    <div class="phase" id="phase">Ready</div>
-    <div class="time" id="clock">45:00</div>
-    <div class="controls">
-      <button class="primary" id="startBtn" onclick="toggleTimer()">Start</button>
-      <button onclick="skip()">Skip</button>
-      <button onclick="addTime(30)">+30s</button>
-    </div>
-    <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="card timers">
+    <section class="timer"><div class="phase">Session timer</div><div class="time" id="sessionClock">45:00</div><div class="controls"><button class="primary" id="sessionStartBtn" onclick="toggleSessionTimer()">Start</button><button onclick="addSessionTime(300)">+5 min</button></div><div class="progress"><div class="bar" id="sessionBar"></div></div></section>
+    <section class="timer rest"><div class="phase" id="restPhase">Set rest timer</div><div class="time" id="restClock">00:00</div><div class="controls"><button class="primary" id="restStartBtn" onclick="toggleRestTimer()" disabled>Start rest</button><button onclick="skipRest()">Skip</button><button onclick="addRestTime(30)">+30s</button></div><div class="progress"><div class="bar" id="restBar"></div></div></section>
   </div>
-
   <div class="card">
     <div class="exercise-head">
       <div><div class="small" id="dayLabel"></div><div class="exercise-name" id="exercise"></div></div>
@@ -63,16 +42,20 @@ h3{font-size:13px;margin:15px 0 6px}.text{font-size:14px;line-height:1.45}.cue{p
     <h3>Why</h3><div class="text" id="why"></div>
     <h3>Form cues</h3><div class="cue" id="cues"></div>
     <h3>Sets completed</h3><div class="sets" id="setButtons"></div>
-    <button class="primary next" onclick="completeAndNext()">Complete set / Next</button>
+    <button class="primary next" onclick="completeSet()">Complete next set</button>
   </div>
 
   <div class="card info">
     <div><b>Session</b><div class="small" id="sessionInfo"></div></div>
     <div><b>Safety</b><div class="small">Keep 1–3 RIR. Stop if sharp pain, instability, locking or worsening knee symptoms.</div></div>
   </div>
-  <div class="card notice">
-    <b>Timer behavior:</b> Start begins the 45-minute session. After completing a set, the app starts the prescribed rest timer. You can skip rest, add 30 seconds, or reset at any time. Your completed sets are saved for the current session in this browser.
-  </div>
+  <div class="card notice"><b>How it works:</b> The session timer and the per-set rest timer run independently. Completing a set starts its prescribed rest. When rest ends, an alarm sounds. Today’s workout progress is saved in this browser.</div>
+  </main>
+  <main id="trackingTab" class="hidden">
+    <div class="card"><div class="calendar-header"><button onclick="changeMonth(-1)">‹</button><h2 id="monthLabel"></h2><button onclick="changeMonth(1)">›</button></div><div class="calendar" id="calendar"></div><div class="legend"><span><i class="key" style="background:#dcfce7"></i>Done</span><span><i class="key" style="background:#fef3c7"></i>Partial</span><span><i class="key" style="background:#fee2e2"></i>Not done</span><span><i class="key" style="background:#f3f4f6"></i>Recovery</span></div></div>
+    <div class="card"><div class="stats"><div class="stat"><b id="doneCount">0</b><span>Completed</span></div><div class="stat"><b id="partialCount">0</b><span>Partial</span></div><div class="stat"><b id="plannedCount">0</b><span>Weekdays</span></div></div></div>
+    <div class="card notice">Tracking is kept only in this browser with local storage. Publishing to GitHub Pages does not share or overwrite your workout history on other devices.</div>
+  </main>
 </div>
 
 <script>
@@ -139,50 +122,47 @@ function normalize(){
 }
 normalize();
 
-let week="A", day=0, ex=0, completed=[], timer=null, seconds=2700, mode="session";
-const weeks=document.getElementById("weeks"), days=document.getElementById("days");
-["A","B","C"].forEach(w=>{let b=document.createElement("button");b.textContent="Week "+w;b.onclick=()=>{week=w;day=0;ex=0;resetWorkout(false);render()};weeks.appendChild(b)});
+const STORAGE_PREFIX="workout-timer-day-", SESSION_LENGTH=45*60;
+let week="A",day=Math.min(new Date().getDay() || 1,5)-1,ex=0,activeTab="workout";
+let sessionSeconds=SESSION_LENGTH,restSeconds=0,restLength=0,sessionTimer=null,restTimer=null,calendarDate=new Date();
+const weeks=document.getElementById("weeks"),days=document.getElementById("days");
 
-function renderDays(){days.innerHTML="";W[week].forEach((d,i)=>{let b=document.createElement("button");b.textContent="Day "+(i+1);b.className=i===day?"active":"";b.onclick=()=>{day=i;ex=0;resetWorkout(false);render()};days.appendChild(b)})}
-function parseRest(s){let n=parseFloat(s); if(s.includes("min")) return Math.round(n*60); return Math.round(n)}
-function repsCount(s){let m=s.match(/(\d+)\s*×/);return m?+m[1]:2}
+function dateKey(date=new Date()){const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");return `${y}-${m}-${d}`}
+function storageKey(date=new Date()){return STORAGE_PREFIX+dateKey(date)}
+function getRecord(date=new Date()){try{return JSON.parse(localStorage.getItem(storageKey(date)))||{week,day,sets:{}}}catch{return {week,day,sets:{}}}}
+function saveRecord(record){localStorage.setItem(storageKey(),JSON.stringify(record));renderTracking()}
+function doneSets(){return getRecord().sets[ex]||[]}
+function formatTime(total){const m=Math.floor(Math.max(0,total)/60),s=Math.max(0,total)%60;return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`}
+function parseRest(value){const nums=(value.match(/\d+(?:\.\d+)?/g)||[0]).map(Number);return Math.round((value.includes("min")?Math.max(...nums)*60:Math.max(...nums)))}
+function repsCount(value){const m=value.match(/(\d+)\s*×/);return m?Number(m[1]):2}
 function current(){return W[week][day].ex[ex]}
-function render(){
-  renderDays(); let e=current();
-  document.getElementById("dayLabel").textContent=W[week][day].name;
-  document.getElementById("exercise").textContent=e[0];
-  document.getElementById("sets").textContent=e[1];
-  document.getElementById("rir").textContent=e[2];
-  document.getElementById("rest").textContent=e[3];
-  document.getElementById("tempo").textContent=e[4];
-  document.getElementById("muscles").textContent=e[5];
-  document.getElementById("why").textContent=e[6];
-  document.getElementById("cues").textContent=e[7];
-  document.getElementById("badge").textContent=e[8]==="knee"?"KNEE FOCUS":e[8].toUpperCase();
-  document.getElementById("sessionInfo").textContent=`Week ${week} • Day ${day+1} • Exercise ${ex+1} of ${W[week][day].ex.length}`;
-  const n=repsCount(e[1]);let key=`${week}-${day}-${ex}`, done=JSON.parse(localStorage.getItem("done-"+key)||"[]");
-  let sb=document.getElementById("setButtons");sb.innerHTML="";
-  for(let i=0;i<n;i++){let b=document.createElement("button");b.className="set"+(done.includes(i)?" done":"");b.textContent=`Set ${i+1}`;b.onclick=()=>toggleSet(i);sb.appendChild(b)}
-  updateClock();
-}
-function toggleSet(i){let key=`${week}-${day}-${ex}`,done=JSON.parse(localStorage.getItem("done-"+key)||"[]");done=done.includes(i)?done.filter(x=>x!==i):[...done,i];localStorage.setItem("done-"+key,JSON.stringify(done));render()}
-function completeAndNext(){
-  let key=`${week}-${day}-${ex}`,done=JSON.parse(localStorage.getItem("done-"+key)||"[]"),n=repsCount(current()[1]);
-  if(done.length<n){done.push(done.length);localStorage.setItem("done-"+key,JSON.stringify(done));render()}
-  if(done.length>=n){startRest(parseRest(current()[3]));}
-}
-function startRest(s){clearInterval(timer);mode="rest";seconds=s;document.getElementById("phase").textContent="REST";document.getElementById("startBtn").textContent="Pause";timer=setInterval(()=>{if(seconds>0){seconds--;updateClock()}else{clearInterval(timer);timer=null;mode="session";nextExercise();}},1000);updateClock()}
-function nextExercise(){if(ex<W[week][day].ex.length-1){ex++;}else if(day<4){day++;ex=0;}else{alert("Workout complete. Great session.");ex=0;}render();mode="session";seconds=2700;document.getElementById("phase").textContent="Ready";document.getElementById("startBtn").textContent="Start"}
-function toggleTimer(){
- if(timer){clearInterval(timer);timer=null;document.getElementById("startBtn").textContent="Resume";return}
- document.getElementById("startBtn").textContent="Pause";mode="session";
- timer=setInterval(()=>{if(seconds>0){seconds--;updateClock()}else{clearInterval(timer);timer=null;document.getElementById("phase").textContent="Time complete";document.getElementById("startBtn").textContent="Start"}},1000);
-}
-function skip(){if(mode==="rest"){clearInterval(timer);timer=null;nextExercise()}else{nextExercise()}}
-function addTime(s){seconds+=s;updateClock()}
-function updateClock(){let m=Math.floor(seconds/60),s=seconds%60;document.getElementById("clock").textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;let pct=Math.max(0,Math.min(100,(2700-seconds)/2700*100));document.getElementById("bar").style.width=pct+"%";if(mode==="rest")document.getElementById("phase").textContent="REST"}
-function resetWorkout(full=true){clearInterval(timer);timer=null;seconds=2700;mode="session";document.getElementById("startBtn").textContent="Start";document.getElementById("phase").textContent="Ready";if(full){week="A";day=0;ex=0;render()}}
-render();
+function totalSets(record=getRecord()){return W[record.week||week][record.day??day].ex.reduce((sum,item)=>sum+repsCount(item[1]),0)}
+function completedSets(record=getRecord()){return Object.values(record.sets||{}).reduce((sum,sets)=>sum+sets.length,0)}
+function isComplete(record=getRecord()){return completedSets(record)>=totalSets(record)}
+function renderWeeks(){weeks.innerHTML="";["A","B","C"].forEach(w=>{const b=document.createElement("button");b.textContent="Week "+w;b.className=w===week?"active":"";b.onclick=()=>{week=w;ex=0;render()};weeks.appendChild(b)})}
+function renderDays(){days.innerHTML="";W[week].forEach((item,i)=>{const b=document.createElement("button");b.textContent=["Mon","Tue","Wed","Thu","Fri"][i];b.className=i===day?"active":"";b.onclick=()=>{day=i;ex=0;render()};days.appendChild(b)})}
+function render(){renderWeeks();renderDays();const e=current(),done=doneSets(),n=repsCount(e[1]);
+  document.getElementById("dayLabel").textContent=W[week][day].name;document.getElementById("exercise").textContent=e[0];document.getElementById("sets").textContent=e[1];document.getElementById("rir").textContent=e[2];document.getElementById("rest").textContent=e[3];document.getElementById("tempo").textContent=e[4];document.getElementById("muscles").textContent=e[5];document.getElementById("why").textContent=e[6];document.getElementById("cues").textContent=e[7];document.getElementById("badge").textContent=e[8]==="knee"?"KNEE FOCUS":e[8].toUpperCase();
+  document.getElementById("sessionInfo").textContent=`Week ${week} • ${["Monday","Tuesday","Wednesday","Thursday","Friday"][day]} • Exercise ${ex+1} of ${W[week][day].ex.length}`;
+  const buttons=document.getElementById("setButtons");buttons.innerHTML="";for(let i=0;i<n;i++){const b=document.createElement("button");b.className="set"+(done.includes(i)?" done":"");b.textContent=`Set ${i+1}`;b.onclick=()=>toggleSet(i);buttons.appendChild(b)}
+  document.querySelector(".next").textContent=done.length>=n?"Exercise complete — continue after rest":"Complete next set";updateTimers();}
+function toggleSet(index){const record=getRecord();record.week=week;record.day=day;const done=record.sets[ex]||[];record.sets[ex]=done.includes(index)?done.filter(i=>i!==index):[...done,index].sort();saveRecord(record);render()}
+function completeSet(){const record=getRecord();record.week=week;record.day=day;const done=record.sets[ex]||[],needed=repsCount(current()[1]);if(done.length>=needed){if(ex<W[week][day].ex.length-1){ex++;render()}return}record.sets[ex]=[...done,done.length];saveRecord(record);render();startRest(parseRest(current()[3]))}
+function advanceAfterRest(){if(doneSets().length>=repsCount(current()[1])&&ex<W[week][day].ex.length-1){ex++;render()}else if(isComplete()){playSound();alert("Workout complete. Great session!")}}
+function updateTimers(){document.getElementById("sessionClock").textContent=formatTime(sessionSeconds);document.getElementById("restClock").textContent=formatTime(restSeconds);document.getElementById("sessionBar").style.width=`${(1-sessionSeconds/SESSION_LENGTH)*100}%`;document.getElementById("restBar").style.width=restLength?`${(1-restSeconds/restLength)*100}%`:"0%";document.getElementById("sessionStartBtn").textContent=sessionTimer?"Pause":sessionSeconds===SESSION_LENGTH?"Start":"Resume";document.getElementById("restStartBtn").disabled=!restSeconds;document.getElementById("restStartBtn").textContent=restTimer?"Pause":restSeconds?"Resume rest":"Start rest";document.getElementById("restPhase").textContent=restTimer?"Resting":"Set rest timer"}
+function toggleSessionTimer(){if(sessionTimer){clearInterval(sessionTimer);sessionTimer=null;updateTimers();return}sessionTimer=setInterval(()=>{if(sessionSeconds>0){sessionSeconds--;updateTimers()}else{clearInterval(sessionTimer);sessionTimer=null;playSound();updateTimers()}},1000);updateTimers()}
+function addSessionTime(seconds){sessionSeconds+=seconds;updateTimers()}
+function startRest(seconds){clearInterval(restTimer);restSeconds=seconds;restLength=seconds;toggleRestTimer()}
+function toggleRestTimer(){if(!restSeconds)return;if(restTimer){clearInterval(restTimer);restTimer=null;updateTimers();return}restTimer=setInterval(()=>{if(restSeconds>0){restSeconds--;updateTimers()}else{clearInterval(restTimer);restTimer=null;playSound();updateTimers();advanceAfterRest()}},1000);updateTimers()}
+function addRestTime(seconds){restSeconds+=seconds;restLength=Math.max(restLength,restSeconds);updateTimers()}
+function skipRest(){if(restTimer)clearInterval(restTimer);restTimer=null;restSeconds=0;updateTimers();advanceAfterRest()}
+function playSound(){try{const audio=new (window.AudioContext||window.webkitAudioContext)(),beep=(at,freq)=>{const oscillator=audio.createOscillator(),gain=audio.createGain();oscillator.frequency.value=freq;gain.gain.setValueAtTime(.12,at);gain.gain.exponentialRampToValueAtTime(.001,at+.28);oscillator.connect(gain).connect(audio.destination);oscillator.start(at);oscillator.stop(at+.3)};beep(audio.currentTime,880);beep(audio.currentTime+.35,1175)}catch{}}
+function resetToday(){if(!confirm("Reset all completed sets and timers for today?"))return;clearInterval(sessionTimer);clearInterval(restTimer);sessionTimer=restTimer=null;sessionSeconds=SESSION_LENGTH;restSeconds=restLength=0;localStorage.removeItem(storageKey());ex=0;render();renderTracking()}
+function setTab(tab){activeTab=tab;document.getElementById("workoutTab").classList.toggle("hidden",tab!=="workout");document.getElementById("trackingTab").classList.toggle("hidden",tab!=="tracking");document.querySelectorAll(".app-tabs button").forEach(button=>button.classList.toggle("active",button.dataset.tab===tab));if(tab==="tracking")renderTracking()}
+function recordForDate(date){try{return JSON.parse(localStorage.getItem(storageKey(date)))}catch{return null}}
+function renderTracking(){const label=document.getElementById("monthLabel"),calendar=document.getElementById("calendar"),year=calendarDate.getFullYear(),month=calendarDate.getMonth(),today=dateKey();label.textContent=new Intl.DateTimeFormat(undefined,{month:"long",year:"numeric"}).format(calendarDate);calendar.innerHTML=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div class="dow">${d}</div>`).join("");const first=new Date(year,month,1),offset=(first.getDay()+6)%7,daysInMonth=new Date(year,month+1,0).getDate();for(let i=0;i<offset;i++)calendar.insertAdjacentHTML("beforeend","<div></div>");let done=0,partial=0,weekdays=0;for(let number=1;number<=daysInMonth;number++){const date=new Date(year,month,number),key=dateKey(date),weekday=date.getDay(),record=recordForDate(date);let status=weekday===0||weekday===6?"recovery":key>today?"future":"missed";if(weekday!==0&&weekday!==6){weekdays++;if(record){if(isComplete(record)){status="done";done++}else if(completedSets(record)>0){status="partial";partial++}}}calendar.insertAdjacentHTML("beforeend",`<div class="calendar-day ${status}${key===today?" today":""}" title="${key}: ${status}">${number}</div>`)}document.getElementById("doneCount").textContent=done;document.getElementById("partialCount").textContent=partial;document.getElementById("plannedCount").textContent=weekdays}
+function changeMonth(amount){calendarDate=new Date(calendarDate.getFullYear(),calendarDate.getMonth()+amount,1);renderTracking()}
+render();renderTracking();
 </script>
 </body>
 </html>
