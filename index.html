@@ -8,304 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Strength + hypertrophy workout timer with guided warm-up, an independent 45-minute main workout timer and a guided cooldown.">
 <title>Lift Log</title>
-<style>
-:root{
-  --bg:#0a0c11;--surface:#12161f;--surface2:#1a1f2b;--surface3:#232939;
-  --line:#262d3d;--line2:#333c50;
-  --text:#eef1f8;--muted:#8e97ad;--dim:#69738a;
-  --accent:#4d7cfe;--accent-ink:#0a1226;
-  --success:#2ee6a8;--warn:#ffb020;--danger:#ff5a68;
-  --warmup:#ff8a3d;--main:#4d7cfe;--rest:#22d3ee;--finisher:#f472b6;--cool:#a78bfa;
-  --phase:var(--accent);
-  --r:18px;--r-sm:12px;
-  --shadow:0 10px 30px rgba(0,0,0,.45);
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
-  color-scheme:dark; /* native checkboxes, range tracks and scrollbars follow the dark theme */
-}
-body[data-phase="warmup"]{--phase:var(--warmup)}
-body[data-phase="transition"]{--phase:var(--main)}
-body[data-phase="main"]{--phase:var(--main)}
-body[data-phase="rest"]{--phase:var(--rest)}
-body[data-phase="mainComplete"]{--phase:var(--success)}
-body[data-phase="finisher"]{--phase:var(--finisher)}
-body[data-phase="cooldown"]{--phase:var(--cool)}
-body[data-phase="complete"]{--phase:var(--success)}
-
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{overflow-x:hidden}
-body{
-  margin:0;background:var(--bg);color:var(--text);font-family:var(--font);
-  font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
-}
-body:before{
-  content:"";position:fixed;inset:0 0 auto 0;height:340px;pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse 120% 100% at 50% -20%,color-mix(in srgb,var(--phase) 22%,transparent),transparent 70%);
-  transition:background .5s ease;
-}
-.app{position:relative;z-index:1;width:100%;max-width:760px;margin:auto;
-  padding:calc(16px + env(safe-area-inset-top)) 16px calc(120px + env(safe-area-inset-bottom))}
-h1,h2,h3,h4{margin:0;letter-spacing:-.02em}
-p{margin:0}
-.hidden{display:none!important}
-
-/* ---------- header ---------- */
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 2px 18px}
-.top h1{font-size:22px;font-weight:800}
-.top .sub{color:var(--muted);font-size:12px;margin-top:2px}
-.top-actions{display:flex;gap:8px;align-items:center}
-
-/* ---------- buttons ---------- */
-button{font:inherit;font-weight:650;color:var(--text);background:var(--surface2);
-  border:1px solid var(--line);border-radius:var(--r-sm);min-height:44px;padding:10px 14px;
-  cursor:pointer;touch-action:manipulation;transition:background .15s,border-color .15s,transform .08s}
-button:active{transform:scale(.985)}
-button:disabled{opacity:.4;cursor:not-allowed}
-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.primary.phase{background:var(--phase);border-color:var(--phase);color:#08101f}
-.ghost{background:transparent;border-color:var(--line)}
-.ghost:hover{border-color:var(--line2)}
-.danger{background:transparent;color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,transparent)}
-.big{min-height:58px;font-size:17px;font-weight:750;border-radius:16px;width:100%}
-.chip-btn{min-height:38px;padding:8px 12px;font-size:13px;border-radius:10px;background:var(--surface2)}
-.icon-btn{min-height:40px;padding:8px 12px;font-size:13px;border-radius:11px;background:var(--surface2);color:var(--muted)}
-.icon-btn:hover{color:var(--text)}
-
-/* ---------- cards / structure ---------- */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
-  padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
-.card.tight{padding:14px}
-.label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.section-title{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:18px 0 8px}
-.muted{color:var(--muted)}
-.small{font-size:12px;color:var(--muted)}
-.text{font-size:14.5px;line-height:1.55;color:#d7dcea}
-
-/* ---------- selectors ---------- */
-.selector{margin-bottom:10px}
-.weeks{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.days{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
-.weeks button,.days button{min-height:44px;padding:8px 4px;font-size:13px;background:var(--surface2);color:var(--muted)}
-.days button{font-size:12px;flex-direction:column}
-.weeks button.active,.days button.active{background:var(--accent);border-color:var(--accent);color:#fff}
-
-/* ---------- phase banner ---------- */
-.phase-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;
-  background:var(--surface2);
-  background:color-mix(in srgb,var(--phase) 14%,var(--surface));
-  border:1px solid color-mix(in srgb,var(--phase) 40%,transparent);
-  border-radius:var(--r);padding:12px 16px;margin-bottom:14px}
-.phase-banner .name{font-size:13px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--phase)}
-.phase-banner .step{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-
-/* ---------- timers ---------- */
-.timer-card{text-align:center;background:var(--surface);background:linear-gradient(180deg,color-mix(in srgb,var(--phase) 10%,var(--surface)),var(--surface));
-  border:1px solid color-mix(in srgb,var(--phase) 28%,var(--line))}
-.clock{font-size:clamp(52px,17vw,84px);font-weight:800;letter-spacing:-.04em;line-height:1;
-  font-variant-numeric:tabular-nums;margin:10px 0 6px}
-.clock.sm{font-size:clamp(38px,11vw,54px)}
-.clock.phase-color{color:var(--phase)}
-.clock-note{font-size:12px;color:var(--muted);margin-bottom:12px}
-.overtime{display:inline-block;margin-bottom:10px;font-size:12px;font-weight:800;color:var(--warn);
-  background:var(--surface3);
-  background:color-mix(in srgb,var(--warn) 15%,transparent);border-radius:99px;padding:4px 10px}
-.track{height:6px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-top:14px}
-.track > i{display:block;height:100%;width:0%;background:var(--phase);border-radius:99px;transition:width .3s linear}
-.timer-controls{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
-.timer-controls button{flex:1 1 90px;min-width:88px;padding:10px 8px}
-
-.rest-card{background:var(--surface);background:linear-gradient(180deg,color-mix(in srgb,var(--rest) 16%,var(--surface)),var(--surface));
-  border:1px solid color-mix(in srgb,var(--rest) 45%,transparent);text-align:center}
-.rest-card .label{color:var(--rest)}
-.rest-card .clock{color:var(--rest)}
-.rest-card .track > i{background:var(--rest)}
-.ready-banner{display:flex;align-items:center;gap:10px;justify-content:center;
-  background:var(--surface2);
-  background:color-mix(in srgb,var(--success) 15%,transparent);
-  border:1px solid color-mix(in srgb,var(--success) 45%,transparent);
-  color:var(--success);font-weight:750;font-size:14px;border-radius:14px;padding:12px;margin-bottom:14px;
-  animation:pulse 1.6s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.62}}
-
-/* ---------- exercise ---------- */
-.ex-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.ex-count{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--phase)}
-.ex-name{font-size:clamp(22px,6vw,28px);font-weight:800;line-height:1.15;margin-top:4px}
-.tag{font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:8px;white-space:nowrap;
-  background:var(--surface3);color:var(--muted)}
-.tag.knee{background:var(--surface3);background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
-.tag.posterior{background:var(--surface3);background:color-mix(in srgb,var(--cool) 18%,transparent);color:var(--cool)}
-.tag.compound{background:var(--surface3);background:color-mix(in srgb,var(--accent) 20%,transparent);color:#93b0ff}
-.tag.core{background:var(--surface3);background:color-mix(in srgb,var(--rest) 16%,transparent);color:var(--rest)}
-
-.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:16px 0 0}
-.meta > div{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 8px;min-width:0}
-.meta b{display:block;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
-.meta span{font-weight:750;font-size:13.5px;word-break:break-word}
-
-.tempo-box{margin-top:10px;background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px}
-.tempo-head{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:9px}
-.tempo-head b{color:var(--text);font-size:14px;letter-spacing:.04em}
-.tempo-steps{display:flex;flex-wrap:wrap;gap:7px}
-.tempo-steps span{font-size:12.5px;font-weight:650;background:var(--surface3);border-radius:9px;padding:7px 10px;color:#cfd6e6}
-
-.safety{margin-top:14px;border-radius:var(--r-sm);padding:13px 14px;
-  background:var(--surface2);border:1px solid var(--line);
-  background:color-mix(in srgb,var(--warn) 10%,transparent);
-  border:1px solid color-mix(in srgb,var(--warn) 32%,transparent);
-  border-left:3px solid var(--warn)}
-.safety.posture{background:var(--surface2);background:color-mix(in srgb,var(--cool) 10%,transparent);
-  border-color:color-mix(in srgb,var(--cool) 32%,transparent);border-left-color:var(--cool)}
-.safety .label{color:var(--warn);margin-bottom:8px;display:block}
-.safety.posture .label{color:var(--cool)}
-.safety ul{margin:0;padding-left:18px;font-size:13.5px;line-height:1.6;color:#dbe1ee}
-.cue{background:var(--surface2);border-left:3px solid var(--phase);border-radius:var(--r-sm);
-  padding:12px 14px;font-size:14px;line-height:1.55;color:#dbe1ee}
-
-.sets{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:9px;margin-top:9px}
-.set{min-height:50px;font-size:13.5px;font-weight:750;background:var(--surface2);border:1px solid var(--line2);color:var(--muted)}
-.set.done{background:var(--surface3);background:color-mix(in srgb,var(--success) 16%,transparent);
-  border-color:color-mix(in srgb,var(--success) 55%,transparent);color:var(--success)}
-.set.next{border-color:var(--phase);color:var(--text);box-shadow:0 0 0 1px var(--phase) inset}
-.nav-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
-
-/* ---------- warm-up / cooldown movement ---------- */
-.move-name{font-size:clamp(24px,6.5vw,32px);font-weight:800;line-height:1.15;margin:6px 0 8px}
-.move-dose{display:inline-block;font-size:13px;font-weight:750;color:var(--phase);
-  background:var(--surface3);
-  background:color-mix(in srgb,var(--phase) 14%,transparent);border-radius:99px;padding:6px 13px;margin-bottom:14px}
-.dots{display:flex;gap:5px;margin-top:14px}
-.dots i{flex:1;height:5px;border-radius:99px;background:var(--surface3)}
-.dots i.done{background:var(--line2);background:color-mix(in srgb,var(--phase) 55%,transparent)}
-.dots i.now{background:var(--phase)}
-.up-next{font-size:12.5px;color:var(--muted);margin-top:12px}
-.up-next b{color:var(--text);font-weight:700}
-
-/* ---------- transition screen ---------- */
-.transition{text-align:center;padding:44px 20px}
-.transition h2{font-size:clamp(24px,7vw,34px);font-weight:850;margin:14px 0 6px}
-.transition .next-label{font-size:12px;font-weight:850;letter-spacing:.16em;text-transform:uppercase;color:var(--main);margin-top:26px}
-.count-ring{width:120px;height:120px;margin:14px auto 6px;border-radius:50%;background:var(--surface2);
-  display:grid;place-items:center;font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;
-  border:3px solid var(--main);color:var(--main);background:color-mix(in srgb,var(--main) 12%,transparent);
-  animation:pulse 1s ease-in-out infinite}
-
-/* ---------- summaries ---------- */
-.hero{text-align:center;padding:8px 4px 4px}
-.hero h2{font-size:clamp(24px,7vw,32px);font-weight:850;margin:10px 0 6px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:9px;margin-top:6px}
-.stat{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 8px;text-align:center;min-width:0}
-.stat b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-.stat span{font-size:10.5px;color:var(--muted);letter-spacing:.03em}
-.breakdown{display:flex;flex-direction:column;gap:8px;margin-top:6px}
-.brow{display:flex;justify-content:space-between;align-items:center;gap:10px;
-  background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 13px;font-size:13.5px}
-.brow b{font-variant-numeric:tabular-nums}
-.brow .dotmark{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:9px;vertical-align:middle}
-textarea{width:100%;min-height:84px;background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-sm);
-  color:var(--text);font:inherit;font-size:14px;padding:12px;resize:vertical}
-textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);border-color:var(--accent)}
-
-/* ---------- overview preview list ---------- */
-.prev-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.prev-item{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--line);
-  border-radius:var(--r-sm);padding:11px 13px;min-width:0}
-.prev-num{flex:0 0 26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12px;font-weight:800;
-  background:var(--surface3);color:var(--muted)}
-.prev-body{flex:1;min-width:0}
-.prev-name{font-size:14.5px;font-weight:700;line-height:1.3}
-.prev-meta{font-size:12px;color:var(--muted);margin-top:2px}
-.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-top:4px}
-.plan > div{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 10px;text-align:center;min-width:0}
-.plan .ph{font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
-.plan .pv{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
-.plan .pn{font-size:10.5px;color:var(--dim);margin-top:3px}
-.plan .warm .ph{color:var(--warmup)}
-.plan .mainp{border-color:color-mix(in srgb,var(--main) 45%,transparent);background:color-mix(in srgb,var(--main) 12%,var(--surface2))}
-.plan .mainp .ph{color:var(--main)}
-.plan .fin .ph{color:var(--finisher)}
-.plan .cool .ph{color:var(--cool)}
-
-/* ---------- rest day ---------- */
-.rest-day{text-align:center;padding:34px 22px}
-.rest-day h2{font-size:26px;margin:12px 0 8px}
-.rest-actions{display:grid;gap:9px;margin-top:22px}
-
-/* ---------- tracking ---------- */
-.calendar-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.calendar-header h2{font-size:17px}
-.calendar-header button{min-height:40px;min-width:40px;padding:5px;font-size:20px}
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.dow{font-size:10px;color:var(--dim);font-weight:800;text-align:center;padding:3px 0}
-.calendar-day{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;
-  font-size:12.5px;font-weight:700;border:1px solid transparent;background:var(--surface2);color:var(--dim)}
-.calendar-day.missed{background:var(--surface3);background:color-mix(in srgb,var(--danger) 16%,transparent);color:#ff8b95}
-.calendar-day.partial{background:var(--surface3);background:color-mix(in srgb,var(--warn) 16%,transparent);color:#ffca6a}
-.calendar-day.done{background:var(--surface3);background:color-mix(in srgb,var(--success) 16%,transparent);color:var(--success)}
-.calendar-day.today{outline:2px solid var(--accent);outline-offset:1px}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:16px}
-.key{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:middle}
-
-/* ---------- bottom chrome ---------- */
-.app-tabs{position:fixed;z-index:20;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));
-  max-width:736px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:6px;
-  background:var(--surface2);
-  background:color-mix(in srgb,var(--surface2) 92%,transparent);border:1px solid var(--line);
-  border-radius:18px;box-shadow:var(--shadow);backdrop-filter:blur(14px)}
-.app-tabs button{min-height:48px;border:0;border-radius:13px;background:transparent;color:var(--muted);font-size:13px}
-.app-tabs button.active{background:var(--surface3);color:var(--text)}
-.sticky-bar{position:fixed;z-index:20;left:0;right:0;bottom:0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));
-  background:linear-gradient(to top,var(--bg) 55%,color-mix(in srgb,var(--bg) 70%,transparent) 85%,transparent)}
-.sticky-inner{max-width:760px;margin:auto}
-
-/* ---------- modal / gate ---------- */
-.modal{position:fixed;inset:0;z-index:60;background:rgba(4,6,10,.72);backdrop-filter:blur(6px);
-  display:flex;align-items:flex-end;justify-content:center;padding:0}
-.modal-card{width:100%;max-width:520px;background:var(--surface);border:1px solid var(--line);
-  border-radius:22px 22px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));box-shadow:var(--shadow);
-  max-height:90vh;overflow-y:auto}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-.modal-head h2{font-size:19px}
-.srow{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
-.srow:last-of-type{border-bottom:0}
-.srow > span:first-child{min-width:0}
-.srow .st{display:block;font-size:14.5px;font-weight:650}
-.srow .sd{display:block;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
-input[type=checkbox]{width:22px;height:22px;accent-color:var(--accent);flex:0 0 auto}
-input[type=range]{width:100%;accent-color:var(--accent);height:30px}
-.profile-gate{position:fixed;inset:0;z-index:70;background:radial-gradient(ellipse 90% 70% at 50% 0%,#16203a,#080a0f 70%);
-  display:flex;align-items:center;justify-content:center;padding:22px}
-.profile-card{width:min(100%,400px);padding:26px 22px;background:var(--surface);border:1px solid var(--line);
-  border-radius:24px;box-shadow:var(--shadow)}
-.profile-mark{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;
-  background:var(--surface3);
-  background:color-mix(in srgb,var(--accent) 20%,transparent);color:#93b0ff;font-size:24px;font-weight:900}
-.profile-card h2{margin:16px 0 8px;font-size:23px}
-.profile-card p{margin:0 0 18px;color:var(--muted);font-size:13px}
-.profile-card input[type=text]{width:100%;min-height:50px;border-radius:13px;border:1px solid var(--line);
-  background:var(--surface2);color:var(--text);padding:12px;font:inherit;margin-bottom:10px}
-.profile-card input[type=text]:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);border-color:var(--accent)}
-.profile-list{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 14px}
-.profile-list button{min-height:38px;padding:7px 12px;border-radius:10px;font-size:13px}
-.profile-note{font-size:11px!important;margin:14px 0 0!important}
-
-@media(min-width:620px){
-  .app-tabs{left:50%;right:auto;width:calc(100% - 48px);max-width:736px;transform:translateX(-50%)}
-  .modal{align-items:center;padding:20px}
-  .modal-card{border-radius:22px;padding-bottom:22px}
-}
-@media(max-width:520px){
-  /* the four main-workout stats read better as a 2x2 block than 3 + 1 */
-  #screenMainComplete .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:400px){
-  .app{padding-left:12px;padding-right:12px}
-  .meta{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .card{padding:15px}
-  .top h1{font-size:20px}
-}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
+<link rel="stylesheet" href="assets/styles.css">
 </head>
 <body data-phase="overview">
 <div class="app">
@@ -378,31 +81,39 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
 
     <!-- ============ PHASE 1 — WARM-UP ============ -->
     <section class="screen hidden" id="screenWarmup">
-      <div class="phase-banner">
-        <span class="name">Warm-up</span>
-        <span class="step" id="warmStep">1 of 6</span>
+      <div class="mini-head">
+        <span class="mini-phase">Warm-up</span>
+        <span class="mini-step" id="warmStep">1 of 7</span>
+        <button class="mini-btn primary phase" id="warmPauseBtn" onclick="toggleRun()">Pause</button>
       </div>
-      <div class="card timer-card">
-        <div class="label" id="warmTitle"></div>
-        <div class="move-name" id="warmName"></div>
-        <div class="move-dose" id="warmDose"></div>
-        <div class="clock sm phase-color" id="warmClock">00:45</div>
-        <div class="clock-note">Warm-up remaining: <b id="warmTotalLeft">6:00</b> · does not use main workout time</div>
-        <div class="track"><i id="warmBar"></i></div>
-        <div class="dots" id="warmDots"></div>
-        <div class="timer-controls">
-          <button class="primary phase" id="warmPauseBtn" onclick="toggleRun()">Pause</button>
-          <button class="ghost" onclick="warmPrev()">Previous</button>
-          <button class="ghost" onclick="warmNext(true)">Skip</button>
+      <div class="rings">
+        <div class="dial is-phase">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="dial-bg" cx="50" cy="50" r="44"></circle><circle class="dial-fg" id="warmTotalRing" cx="50" cy="50" r="44"></circle></svg>
+          <div class="dial-inner"><div class="dial-time" id="warmTotalLeft">6:00</div><div class="dial-label">Warm-up left</div></div>
+        </div>
+        <div class="dial is-phase">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="dial-bg" cx="50" cy="50" r="44"></circle><circle class="dial-fg" id="warmRing" cx="50" cy="50" r="44"></circle></svg>
+          <div class="dial-inner"><div class="dial-time" id="warmClock">00:45</div><div class="dial-label">This move</div></div>
         </div>
       </div>
-      <div class="card tight">
-        <div class="label">Form cue</div>
-        <p class="text" id="warmCue" style="margin-top:8px"></p>
+      <div class="focus">
+        <div class="focus-name" id="warmName"></div>
+        <div class="focus-sub"><span id="warmDose"></span></div>
       </div>
-      <div class="card tight">
+      <div class="dots" id="warmDots" style="margin:0 0 12px"></div>
+      <div class="pane">
+        <div class="mini-card">
+          <span class="label">Form cue</span>
+          <p id="warmCue"></p>
+        </div>
+        <div class="mini-card">
+          <span class="label" id="warmTitle"></span>
+          <p class="small" style="margin:0">The 45:00 main workout timer has not started — warm-up time is never deducted from it.</p>
+        </div>
         <div class="nav-row">
-          <button class="ghost" onclick="restartWarmup()">Restart warm-up</button>
+          <button class="ghost" onclick="warmPrev()">Previous</button>
+          <button class="ghost" onclick="warmNext(true)">Skip move</button>
+          <button class="ghost" onclick="restartWarmup()">Restart</button>
           <button class="ghost" onclick="finishWarmup(true)">Skip to main</button>
           <button class="danger" onclick="cancelWorkout()">Cancel session</button>
         </div>
@@ -423,76 +134,70 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
 
     <!-- ============ PHASE 2 — MAIN WORKOUT ============ -->
     <section class="screen hidden" id="screenMain">
-      <div class="phase-banner">
-        <span class="name">Main workout</span>
-        <span class="step" id="mainStep">Exercise 1 of 5</span>
+      <div class="mini-head">
+        <span class="mini-phase">Main workout</span>
+        <span class="mini-step" id="mainStep">Exercise 1 of 5</span>
+        <button class="mini-btn primary phase" id="mainPauseBtn" onclick="toggleRun()">Pause</button>
       </div>
 
-      <div class="card timer-card">
-        <div class="label">Main workout timer</div>
-        <div class="clock phase-color" id="mainClock">45:00</div>
-        <div class="overtime hidden" id="mainOvertime"></div>
-        <div class="clock-note" id="mainNote">Runs only during the main workout · warm-up, finisher &amp; cooldown excluded</div>
-        <div class="track"><i id="mainBar"></i></div>
-        <div class="timer-controls">
-          <button class="primary phase" id="mainPauseBtn" onclick="toggleRun()">Pause workout</button>
-          <button class="ghost" onclick="addMainTime(300)">+5 min</button>
+      <div class="rings">
+        <div class="dial is-main">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="dial-bg" cx="50" cy="50" r="44"></circle><circle class="dial-fg" id="mainRing" cx="50" cy="50" r="44"></circle></svg>
+          <div class="dial-inner"><div class="dial-time" id="mainClock">45:00</div><div class="dial-label">Main workout</div></div>
+        </div>
+        <div class="dial is-sets" id="ctxDial">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="dial-bg" cx="50" cy="50" r="44"></circle><circle class="dial-fg" id="ctxRing" cx="50" cy="50" r="44"></circle></svg>
+          <div class="dial-inner"><div class="dial-time" id="ctxValue">0/3</div><div class="dial-label" id="ctxLabel">Sets done</div></div>
         </div>
       </div>
 
-      <div class="card rest-card hidden" id="restCard">
-        <div class="label">Rest</div>
-        <div class="clock sm" id="restClock">01:30</div>
-        <div class="clock-note">The 45:00 workout timer keeps running during rest.</div>
-        <div class="track"><i id="restBar"></i></div>
-        <div class="up-next" id="restUpNext"></div>
-        <div class="timer-controls">
-          <button class="ghost" onclick="addRestTime(30)">+30 sec</button>
-          <button class="primary" onclick="endRest(true)" id="restSkipBtn">Skip rest</button>
-        </div>
+      <div class="overtime hidden" id="mainOvertime"></div>
+
+      <div class="strip rest hidden" id="restStrip">
+        <span id="restUpNext"></span>
+        <button class="ghost" onclick="addRestTime(30)">+30s</button>
+        <button class="ghost" onclick="endRest(true)" id="restSkipBtn">Skip rest</button>
       </div>
+      <div class="strip ready hidden" id="readyBanner">Rest complete — next set is ready</div>
 
-      <div class="ready-banner hidden" id="readyBanner">Rest complete — next set is ready</div>
-
-      <div class="card">
-        <div class="ex-head">
-          <div style="min-width:0">
-            <div class="ex-count" id="exCount">Exercise 1 of 5</div>
-            <div class="ex-name" id="exName"></div>
-          </div>
+      <div class="focus">
+        <div class="focus-name" id="exName"></div>
+        <div class="focus-sub">
+          <span id="exSets"></span>
+          <span>RIR <b id="exRir"></b></span>
+          <span>rest <b id="exRest"></b></span>
           <span class="tag" id="exTag"></span>
+          <button class="info-btn" onclick="openExerciseInfo()" aria-label="How to do this exercise" title="How to do this exercise">i</button>
         </div>
+      </div>
 
-        <div class="meta">
-          <div><b>Sets × Reps</b><span id="exSets"></span></div>
-          <div><b>RIR</b><span id="exRir"></span></div>
-          <div><b>Rest</b><span id="exRest"></span></div>
-          <div><b>Tempo</b><span id="exTempo"></span></div>
-        </div>
+      <div class="sets" id="setButtons" style="margin:0 0 12px"></div>
 
-        <div class="tempo-box">
-          <div class="tempo-head">Tempo: <b id="tempoValue"></b></div>
+      <div class="pane">
+        <div class="mini-card">
+          <span class="label">Tempo <b id="tempoValue" style="color:var(--text)"></b></span>
           <div class="tempo-steps" id="tempoSteps"></div>
         </div>
-
         <div id="safetyBlocks"></div>
-
-        <div class="section-title">Primary muscles</div>
-        <p class="text" id="exMuscles"></p>
-        <div class="section-title">Why this exercise</div>
-        <p class="text" id="exWhy"></p>
-        <div class="section-title">Form cues</div>
-        <div class="cue" id="exCues"></div>
-
-        <div class="section-title">Sets completed</div>
-        <div class="sets" id="setButtons"></div>
-        <button class="primary big" id="completeSetBtn" onclick="completeSet()" style="margin-top:14px">Complete set 1</button>
-      </div>
-
-      <div class="card tight">
+        <div class="mini-card">
+          <span class="label">Form cues</span>
+          <p id="exCues"></p>
+        </div>
+        <div class="mini-card">
+          <div class="mini-grid">
+            <div><b>Sets × Reps</b><span id="exSetsB"></span></div>
+            <div><b>RIR</b><span id="exRirB"></span></div>
+            <div><b>Rest</b><span id="exRestB"></span></div>
+            <div><b>Tempo</b><span id="exTempo"></span></div>
+          </div>
+          <p class="small" style="margin-top:10px" id="exMuscles"></p>
+          <p class="small" style="margin-top:4px" id="exWhy"></p>
+          <p class="small" style="margin-top:8px" id="mainNote"></p>
+        </div>
         <div class="nav-row">
           <button class="ghost" onclick="prevExercise()">Previous exercise</button>
           <button class="ghost" onclick="skipExercise()">Skip exercise</button>
+          <button class="ghost" onclick="addMainTime(300)">+5 min</button>
           <button class="danger" onclick="finishMain(true)">Finish workout</button>
         </div>
       </div>
@@ -524,59 +229,79 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
 
     <!-- ============ PHASE 4 — FINISHER (posture / pelvic control) ============ -->
     <section class="screen hidden" id="screenFinisher">
-      <div class="phase-banner">
-        <span class="name">Finisher</span>
-        <span class="step" id="finStep">1 of 5</span>
+      <div class="mini-head">
+        <span class="mini-phase">Finisher</span>
+        <span class="mini-step" id="finStep">1 of 5</span>
+        <button class="mini-btn primary phase" id="finPauseBtn" onclick="toggleRun()">Pause</button>
       </div>
-      <div class="card timer-card">
-        <div class="label" id="finTitle"></div>
-        <div class="move-name" id="finName"></div>
-        <div class="move-dose" id="finDose"></div>
-        <div class="clock sm phase-color" id="finClock">01:00</div>
-        <div class="clock-note">Finisher remaining: <b id="finTotalLeft">4:45</b> · the 45:00 main workout timer has stopped</div>
-        <div class="track"><i id="finBar"></i></div>
-        <div class="dots" id="finDots"></div>
-        <div class="timer-controls">
-          <button class="primary phase" id="finPauseBtn" onclick="toggleRun()">Pause</button>
-          <button class="ghost" onclick="finPrev()">Previous</button>
-          <button class="ghost" onclick="finNext(true)">Skip</button>
+      <div class="rings">
+        <div class="dial is-phase">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="dial-bg" cx="50" cy="50" r="44"></circle><circle class="dial-fg" id="finTotalRing" cx="50" cy="50" r="44"></circle></svg>
+          <div class="dial-inner"><div class="dial-time" id="finTotalLeft">4:45</div><div class="dial-label">Finisher left</div></div>
+        </div>
+        <div class="dial is-phase">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="dial-bg" cx="50" cy="50" r="44"></circle><circle class="dial-fg" id="finRing" cx="50" cy="50" r="44"></circle></svg>
+          <div class="dial-inner"><div class="dial-time" id="finClock">01:00</div><div class="dial-label">This move</div></div>
         </div>
       </div>
-      <div class="card tight">
-        <div class="label">How to do it</div>
-        <p class="text" id="finCue" style="margin-top:8px"></p>
+      <div class="focus">
+        <div class="focus-name" id="finName"></div>
+        <div class="focus-sub"><span id="finDose"></span></div>
       </div>
-      <div class="card tight">
-        <button class="ghost big" onclick="startCooldown()">Skip finisher and cool down</button>
+      <div class="dots" id="finDots" style="margin:0 0 12px"></div>
+      <div class="pane">
+        <div class="mini-card">
+          <span class="label">How to do it</span>
+          <p id="finCue"></p>
+        </div>
+        <div class="mini-card">
+          <span class="label" id="finTitle"></span>
+          <p class="small" style="margin:0">Light control work, not another working set. The 45:00 main workout timer has stopped.</p>
+        </div>
+        <div class="nav-row">
+          <button class="ghost" onclick="finPrev()">Previous</button>
+          <button class="ghost" onclick="finNext(true)">Skip move</button>
+          <button class="ghost" onclick="startCooldown()">Skip to cooldown</button>
+        </div>
       </div>
     </section>
 
     <!-- ============ PHASE 5 — COOLDOWN ============ -->
     <section class="screen hidden" id="screenCooldown">
-      <div class="phase-banner">
-        <span class="name">Cooldown</span>
-        <span class="step" id="coolStep">1 of 5</span>
+      <div class="mini-head">
+        <span class="mini-phase">Cooldown</span>
+        <span class="mini-step" id="coolStep">1 of 5</span>
+        <button class="mini-btn primary phase" id="coolPauseBtn" onclick="toggleRun()">Pause</button>
       </div>
-      <div class="card timer-card">
-        <div class="label" id="coolTitle"></div>
-        <div class="move-name" id="coolName"></div>
-        <div class="move-dose" id="coolDose"></div>
-        <div class="clock sm phase-color" id="coolClock">01:00</div>
-        <div class="clock-note">Cooldown remaining: <b id="coolTotalLeft">4:00</b> · main workout timer has stopped</div>
-        <div class="track"><i id="coolBar"></i></div>
-        <div class="dots" id="coolDots"></div>
-        <div class="timer-controls">
-          <button class="primary phase" id="coolPauseBtn" onclick="toggleRun()">Pause</button>
-          <button class="ghost" onclick="coolPrev()">Previous</button>
-          <button class="ghost" onclick="coolNext(true)">Skip</button>
+      <div class="rings">
+        <div class="dial is-phase">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="dial-bg" cx="50" cy="50" r="44"></circle><circle class="dial-fg" id="coolTotalRing" cx="50" cy="50" r="44"></circle></svg>
+          <div class="dial-inner"><div class="dial-time" id="coolTotalLeft">4:00</div><div class="dial-label">Cooldown left</div></div>
+        </div>
+        <div class="dial is-phase">
+          <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="dial-bg" cx="50" cy="50" r="44"></circle><circle class="dial-fg" id="coolRing" cx="50" cy="50" r="44"></circle></svg>
+          <div class="dial-inner"><div class="dial-time" id="coolClock">01:00</div><div class="dial-label">This move</div></div>
         </div>
       </div>
-      <div class="card tight">
-        <div class="label">How to do it</div>
-        <p class="text" id="coolCue" style="margin-top:8px"></p>
+      <div class="focus">
+        <div class="focus-name" id="coolName"></div>
+        <div class="focus-sub"><span id="coolDose"></span></div>
       </div>
-      <div class="card tight">
-        <button class="ghost big" onclick="finishSession(true)">Skip cooldown and finish</button>
+      <div class="dots" id="coolDots" style="margin:0 0 12px"></div>
+      <div class="pane">
+        <div class="mini-card">
+          <span class="label">How to do it</span>
+          <p id="coolCue"></p>
+        </div>
+        <div class="mini-card">
+          <span class="label" id="coolTitle"></span>
+          <p class="small" style="margin:0">Relax and let the heart rate settle. The main workout timer has stopped.</p>
+        </div>
+        <div class="nav-row">
+          <button class="ghost" onclick="coolPrev()">Previous</button>
+          <button class="ghost" onclick="coolNext(true)">Skip move</button>
+          <button class="ghost" onclick="finishSession(true)">Skip and finish</button>
+        </div>
       </div>
     </section>
 
@@ -688,6 +413,17 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
   </div>
 </div>
 
+<!-- ============ EXERCISE INFO / DEMO ============ -->
+<div class="modal hidden" id="infoModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="infoName">Exercise</h2>
+      <button class="ghost" onclick="closeExerciseInfo()" aria-label="Close">Close</button>
+    </div>
+    <div id="infoBody"></div>
+  </div>
+</div>
+
 <!-- ============ PROFILE GATE ============ -->
 <div class="profile-gate hidden" id="profileGate">
   <div class="profile-card">
@@ -701,1611 +437,7 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
   </div>
 </div>
 
-<script>
-"use strict";
-
-/* =========================================================================
-   1. PROGRAM DATA  (unchanged from the original program)
-   Exercise tuple: [name, sets×reps, RIR, rest, tempo, muscles, why, cues, category]
-   ========================================================================= */
-const W = {
-A:[
-{name:"Day 1 — Upper Push + Pull",ex:[
-["Barbell Bench Press","3 × 6–8","2","2–2.5 min","2-1-1","Chest, triceps, anterior delts","Primary upper-body strength movement.","Shoulder blades down/back; feet planted; bar toward lower-mid chest; don't bounce.","compound"],
-["Barbell Bent-Over Row","3 × 6–10","2","2 min","2-1-1","Lats, rhomboids, traps, rear delts, biceps","High-value horizontal pull.","Brace hard; neutral spine; hips fixed; pull toward lower ribs.","compound"],
-["Incline DB Press","2 × 8–12","1–2","60 sec","2-1-1","Upper chest, anterior delts, triceps","Adds chest volume.","Stable shoulder blades; elbows about 30–45° from torso.","accessory"],
-["Chest-Supported DB Row","2 × 10–12","1–2","60 sec","2-1-1","Upper back, lats, rear delts","Back volume with lower-back recovery.","Chest supported; pull elbows toward hips.","accessory"],
-["DB Lateral Raise","2 × 12–15","2","45 sec","2-1-2","Lateral delts","Shoulder-width development.","Light DBs; no swinging; raise in scapular plane.","accessory"]]},
-{name:"Day 2 — Lower Quad/Knee + Core",ex:[
-["Barbell Box Squat","3 × 6–8","2–3","2 min","3-1-1","Quads, glutes, adductors","Controlled squat depth and consistent mechanics.","Brace; knees track over toes; touch bench lightly; never crash onto it.","knee"],
-["Reverse DB Lunge","2 × 8–10/leg","2–3","90 sec","3-1-1","Quads, glutes, hamstrings","Unilateral strength and knee/hip stability.","Step backward; stable front foot; knee follows toes; pain-free range.","knee"],
-["Barbell Hip Thrust","3 × 8–12","1–2","90 sec","2-1-2","Glutes","Glute strength with pelvic control.","Ribs down; squeeze glutes; avoid lumbar hyperextension.","posterior"],
-["Standing DB Calf Raise","2 × 10–15","1–2","45 sec","2-1-2","Calves","Calf and ankle strength.","Full comfortable stretch; pause at top; don't bounce.","accessory"],
-["Dead Bug","2 × 6–8/side","controlled","30 sec","slow","Deep core","Trains ribcage-pelvis control.","Exhale; gently flatten lower back; move slowly.","core"]]},
-{name:"Day 3 — Upper Pull + Arms",ex:[
-["One-Arm DB Row","3 × 8–12/side","2","75–90 sec","2-1-1","Lats, rhomboids, traps, biceps","Excellent lat-focused pull.","Square hips; pull toward hip; don't rotate torso.","compound"],
-["Incline DB Bench Press","3 × 8–10","2","90 sec","2-1-1","Upper chest, shoulders, triceps","Second chest exposure.","Don't let shoulders roll forward at bottom.","compound"],
-["Barbell Romanian Deadlift — Light/Moderate","2 × 8–10","3","90 sec","3-1-1","Hamstrings, glutes, erectors","Posterior-chain exposure without a second heavy leg day.","Soft knees; hips back; bar close; neutral spine.","posterior"],
-["Incline DB Curl","2 × 10–12","1–2","45 sec","2-1-2","Biceps","Long-length biceps stimulus.","Upper arm relatively fixed; no swing.","accessory"],
-["DB Rear-Delt Raise","2 × 12–15","1–2","45 sec","2-1-2","Rear delts, upper back","Shoulder balance.","Light DBs; move arms rather than shrugging.","accessory"],
-["DB Hammer Curl","2 × 8–12","1–2","45 sec","2-1-2","Brachialis, biceps, forearms","Arm thickness and grip.","Neutral wrist; elbows close.","accessory"]]},
-{name:"Day 4 — Posterior Chain + Knee",ex:[
-["Barbell Romanian Deadlift","3 × 6–8","2","2 min","3-1-1","Hamstrings, glutes","Primary posterior-chain strength movement.","Brace; hips back; bar close; stop when hamstrings limit depth.","posterior"],
-["Front-Foot-Elevated Reverse Split Squat","2 × 8–10/leg","2–3","90 sec","3-1-1","Glutes, quads","Unilateral leg strength.","Stable front foot; knee follows toes; pain-free range.","knee"],
-["Barbell Glute Bridge","2 × 10–15","1–2","60 sec","2-2-2","Glutes","Glute volume without another heavy hinge.","Ribs down; squeeze glutes; no lumbar hyperextension.","posterior"],
-["Single-Leg Calf Raise Holding DB","2 × 10–15/side","1–2","30 sec","2-1-2","Calves","Unilateral calf and ankle control.","Stable foot; controlled full range.","accessory"],
-["Side Plank","2 × 20–40 sec/side","controlled","30 sec","controlled","Obliques, lateral core, glute medius","Pelvic and trunk stability.","Straight line; squeeze glute; don't let hip sag.","core"]]},
-{name:"Day 5 — Full Body Athletic Strength",ex:[
-["Standing Barbell Overhead Press","3 × 6–8","2","2 min","2-1-1","Delts, triceps, upper chest","Fundamental overhead strength.","Glutes tight; ribs down; brace; bar travels vertically; no backbend.","compound"],
-["Pendlay Row","3 × 6–8","2","2 min","controlled","Back, rear delts, biceps","Powerful horizontal pulling.","Neutral spine; torso fixed; bar starts from floor each rep.","compound"],
-["Goblet Squat to Bench","2 × 10–12","3","75 sec","3-1-1","Quads, glutes","Low-load squat pattern and knee exposure.","Brace; knees track naturally; comfortable depth.","knee"],
-["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder-width development.","No swinging.","accessory"],
-["Close-Grip Push-Up on Bench","2 × 8–15","2","45 sec","2-1-1","Triceps, chest","Scalable pressing volume.","Straight body; elbows about 30–45°; brace.","accessory"],
-["Suitcase Hold","2 × 30–45 sec/side","controlled","30 sec","controlled","Obliques, grip, trunk","Athletic anti-lateral-flexion strength.","Stand tall; don't lean toward the weight.","core"]]}
-],
-B:[],
-C:[]
-};
-
-// Week B/C keep the same movement patterns with exercise substitutions.
-const substitutions = {
-B:[
-[["Incline DB Press","3 × 8–10","2","90 sec","2-1-1","Upper chest, anterior delts, triceps","Different pressing angle for moderate-rep hypertrophy.","Stable shoulder blades; elbows 30–45°.","compound"],["One-Arm DB Row","3 × 8–12","2","90 sec","2-1-1","Lats, upper back, biceps","Unilateral pull and stability.","Square hips; pull toward hip.","compound"],["Flat DB Press","2 × 10–12","1–2","60 sec","2-1-1","Chest, triceps","Additional chest volume.","Controlled bottom; shoulders packed.","accessory"],["Chest-Supported DB Row","2 × 10–12","1–2","60 sec","2-1-1","Upper back, lats","Low-back-friendly back volume.","Chest supported; pull elbows back.","accessory"],["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder width.","No swinging.","accessory"]],
-[["Goblet Squat to Bench","3 × 8–12","3","90 sec","3-1-1","Quads, glutes","Moderate-load controlled knee pattern.","Stable foot; knees track over toes; comfortable depth.","knee"],["Reverse DB Lunge","2 × 10/leg","2–3","90 sec","3-1-1","Quads, glutes, hamstrings","Unilateral stability.","Step back; controlled descent.","knee"],["DB Hip Thrust","3 × 10–12","1–2","90 sec","2-1-2","Glutes","Glute volume with dumbbell loading.","Ribs down; squeeze glutes.","posterior"],["Standing DB Calf Raise","2 × 12–15","1–2","45 sec","2-1-2","Calves","Calf strength.","Full comfortable range.","accessory"],["Dead Bug","2 × 8/side","controlled","30 sec","slow","Deep core","Bracing and pelvic control.","Exhale; lower back controlled.","core"]],
-[["Chest-Supported DB Row","3 × 8–12","2","90 sec","2-1-1","Lats, upper back, rear delts","Supported horizontal pull.","Chest supported; controlled stretch.","compound"],["Flat DB Press","3 × 8–12","2","90 sec","2-1-1","Chest, triceps","Horizontal press variation.","Shoulders stable; controlled bottom.","compound"],["Barbell RDL — Light","2 × 8–10","3","90 sec","3-1-1","Hamstrings, glutes","Low-fatigue hinge.","Hips back; bar close.","posterior"],["DB Curl","2 × 10–15","1–2","45 sec","2-1-2","Biceps","Simple progressive arm work.","No swinging.","accessory"],["Rear-Delt Raise","2 × 12–15","1–2","45 sec","2-1-2","Rear delts","Shoulder balance.","Don't shrug.","accessory"],["Hammer Curl","2 × 10–12","1–2","45 sec","2-1-2","Brachialis, biceps","Arm thickness.","Neutral wrist.","accessory"]],
-[["DB Romanian Deadlift","3 × 8–10","2","2 min","3-1-1","Hamstrings, glutes","Different loading profile for hinge.","Brace; hips back; neutral spine.","posterior"],["B-Stance RDL","2 × 8–10/side","2","90 sec","3-1-1","Hamstrings, glutes","Unilateral posterior-chain loading.","Most weight on front leg; hips square.","posterior"],["DB Glute Bridge","2 × 12–15","1–2","60 sec","2-2-2","Glutes","Glute volume.","Ribs down; no lumbar extension.","posterior"],["Single-Leg Calf Raise","2 × 12–15/side","1–2","30 sec","2-1-2","Calves","Ankle control.","Stable foot.","accessory"],["Side Plank","2 × 30–40 sec/side","controlled","30 sec","controlled","Obliques, glute medius","Trunk and pelvic stability.","No hip sag.","core"]],
-[["Paused Barbell Bench","3 × 6–8","2","2 min","2-2-1","Chest, triceps, anterior delts","Pause improves control and force from the bottom.","Pause lightly on chest; stay braced.","compound"],["Barbell Row","3 × 8–10","2","2 min","2-1-1","Back, biceps, rear delts","Strong horizontal pull.","Brace; pull toward lower ribs.","compound"],["Goblet Squat","2 × 10–12","3","75 sec","3-1-1","Quads, glutes","Controlled low-load knee work.","Comfortable depth; stable foot.","knee"],["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder width.","No swinging.","accessory"],["DB Overhead Triceps Extension","2 × 10–15","1–2","45 sec","2-1-2","Triceps","Direct triceps work.","Ribs down; elbows controlled.","accessory"],["Suitcase Hold","2 × 30–45 sec/side","controlled","30 sec","controlled","Obliques, grip, trunk","Anti-lateral-flexion strength.","Stand tall.","core"]]
-],
-C:[
-[["Paused Barbell Bench","3 × 6–8","2","2 min","2-2-1","Chest, triceps, anterior delts","Paused strength variation.","Stable shoulder blades; pause without relaxing.","compound"],["Chest-Supported DB Row","3 × 8–10","2","90 sec","2-1-1","Upper back, lats","Supported pull with controlled reps.","Chest supported; pull toward hips.","compound"],["Low-Incline DB Press","2 × 10–12","1–2","60 sec","3-1-1","Upper chest, triceps","Longer eccentric for stimulus.","Controlled bottom; shoulders stable.","accessory"],["One-Arm DB Row","2 × 10/side","1–2","60 sec","2-2-1","Lats, upper back","Peak contraction emphasis.","Pause at top; no torso rotation.","accessory"],["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder width.","No swing.","accessory"]],
-[["Paused Goblet Squat to Bench","3 × 8–10","3","90 sec","3-2-1","Quads, glutes","Tempo and pause increase control without maximal load.","Pause gently; knees track toes; pain-free range.","knee"],["Reverse Split Squat","2 × 8–10/leg","2–3","90 sec","3-1-1","Quads, glutes","Controlled unilateral work.","Stable foot; comfortable depth.","knee"],["Barbell Hip Thrust — 2-sec squeeze","3 × 8–12","1–2","90 sec","2-2-2","Glutes","Peak contraction emphasis.","Ribs down; posterior pelvic control.","posterior"],["Calf Raise — 2-sec top pause","2 × 12–15","1–2","45 sec","2-2-2","Calves","Controlled calf strength.","Don't bounce.","accessory"],["Dead Bug","2 × 8/side","controlled","30 sec","slow","Deep core","Bracing and pelvic control.","Exhale; lower back controlled.","core"]],
-[["One-Arm DB Row — 2-sec squeeze","3 × 8–12/side","2","75–90 sec","2-2-1","Lats, upper back, biceps","Peak contraction emphasis.","Pause at top; no rotation.","compound"],["Incline DB Press — 3-sec eccentric","3 × 8–10","2","90 sec","3-1-1","Upper chest, shoulders, triceps","Controlled eccentric increases difficulty without excessive load.","Shoulders packed; smooth bottom.","compound"],["Light DB RDL","2 × 10","3","90 sec","3-1-1","Hamstrings, glutes","Technique-focused hinge.","Hips back; neutral spine.","posterior"],["Incline DB Curl — 3-sec eccentric","2 × 10–12","1–2","45 sec","3-1-2","Biceps","Controlled long-length work.","No swing.","accessory"],["Rear-Delt Raise","2 × 12–15","1–2","45 sec","2-1-2","Rear delts","Shoulder balance.","No shrug.","accessory"],["Hammer Curl","2 × 10–12","1–2","45 sec","2-1-2","Brachialis, biceps","Arm thickness.","Neutral wrist.","accessory"]],
-[["Barbell RDL — 3-sec eccentric","3 × 6–8","2","2 min","3-1-1","Hamstrings, glutes","Controlled hinge strength.","Bar close; hips back; neutral spine.","posterior"],["Reverse Lunge — controlled eccentric","2 × 8–10/leg","2–3","90 sec","3-1-1","Quads, glutes","Controlled unilateral knee loading.","Stable foot; knee tracks toes.","knee"],["Barbell Glute Bridge — 2-sec squeeze","2 × 12–15","1–2","60 sec","2-2-2","Glutes","Glute contraction without heavy loading.","Ribs down; no lumbar extension.","posterior"],["Calf Raise","2 × 12–15","1–2","45 sec","2-1-2","Calves","Calf strength.","Full comfortable range.","accessory"],["Side Plank","2 × 30–45 sec/side","controlled","30 sec","controlled","Obliques, glute medius","Lateral trunk and pelvic stability.","No hip sag.","core"]],
-[["Standing DB Overhead Press","3 × 8–10","2","90 sec","2-1-1","Delts, triceps","Moderate-rep overhead strength.","Ribs down; glutes tight; no backbend.","compound"],["Pendlay Row","3 × 6–8","2","2 min","controlled","Back, rear delts, biceps","Powerful horizontal pull.","Neutral spine; bar starts from floor.","compound"],["Goblet Squat — 3-sec eccentric","2 × 10","3","75 sec","3-1-1","Quads, glutes","Controlled knee exposure.","Pain-free depth; stable foot.","knee"],["DB Lateral Raise","2 × 12–15","1–2","45 sec","2-1-2","Lateral delts","Shoulder width.","No swing.","accessory"],["Close-Grip Bench Press","2 × 8–10","2","60 sec","2-1-1","Triceps, chest","Triceps-focused compound.","Shoulder blades stable; elbows controlled.","accessory"],["Suitcase Hold","2 × 30–45 sec/side","controlled","30 sec","controlled","Obliques, grip, trunk","Athletic trunk stability.","Stand tall; don't lean.","core"]]
-]
-};
-
-function normalizeProgram(){
-  if(!W.B.length) W.B = substitutions.B.map((exs,i)=>({name:W.A[i].name,ex:exs}));
-  if(!W.C.length) W.C = substitutions.C.map((exs,i)=>({name:W.A[i].name,ex:exs}));
-}
-normalizeProgram();
-
-/* =========================================================================
-   2. DAY-SPECIFIC WARM-UPS (5–7 min) AND COOLDOWNS (3–5 min)
-   These never consume main workout time.
-   ========================================================================= */
-const WARMUPS = [
-  { title:"Upper push + pull prep",
-    focus:"Prepares the shoulders, scapula, chest, upper back and elbows before pressing and rowing.",
-    items:[
-      {name:"Arm & shoulder circles",secs:45,dose:"10 small, then 10 large, each direction",cue:"Loose and easy. Keep the neck relaxed and stay well inside a comfortable range."},
-      {name:"Scapular pulls & scap push-ups",secs:45,dose:"10 + 10 reps",cue:"Move the shoulder blades only — arms stay straight. Squeeze back, then push away."},
-      {name:"Thoracic rotations",secs:45,dose:"6 per side",cue:"Ribs down. Rotate through the upper back, not the lower back. Exhale at the end of each rep."},
-      {name:"Light dumbbell rows",secs:45,dose:"12 reps, very light",cue:"Pull the elbow toward the hip and pause for a second. No torso swing."},
-      {name:"Empty bar / very light press",secs:60,dose:"10–12 reps",cue:"Groove the bar path. Shoulder blades set down and back, feet planted."},
-      {name:"Warm-up set 1 — first compound",secs:60,dose:"8 reps @ ~50% of your working weight",cue:"Smooth and easy. This is practice, not effort."},
-      {name:"Warm-up set 2 — first compound",secs:60,dose:"4 reps @ ~70% of your working weight",cue:"Confident bar speed with full control. Stop well short of failure."}
-    ]},
-  { title:"Lower quad + knee prep",
-    focus:"Knee tracking, stable foot position, glute activation and controlled range of motion — no aggressive stretching.",
-    items:[
-      {name:"Ankle rocks (optional)",secs:45,dose:"8 per side",cue:"Drive the knee over the middle of the foot with the heel down. Skip this if it pinches."},
-      {name:"Bodyweight squat",secs:60,dose:"10 reps to comfortable depth",cue:"Only go as deep as feels good today. Whole foot on the floor, knees track over the toes."},
-      {name:"Hip hinge practice",secs:45,dose:"10 reps",cue:"Hips back, ribs down, neutral spine, soft knees. Feel the hamstrings, not the lower back."},
-      {name:"Glute bridge",secs:60,dose:"12 reps with a 2-second squeeze",cue:"Ribs down, drive through the heels and squeeze the glutes at the top."},
-      {name:"Controlled reverse lunge",secs:60,dose:"6 per side, bodyweight",cue:"Step back, control the descent, keep the front foot flat and stable. Pain-free range only."},
-      {name:"Warm-up set 1 — first squat movement",secs:60,dose:"8 reps, empty bar or very light",cue:"Practice the groove: brace, sit back, knees track over the toes."},
-      {name:"Warm-up set 2 — first squat movement",secs:60,dose:"5 reps @ ~60% of your working weight",cue:"Controlled down, confident up. Stop immediately if anything feels sharp."}
-    ]},
-  { title:"Upper pull prep",
-    focus:"Scapular control, thoracic mobility and elbow prep before rowing, pressing and the light hinge.",
-    items:[
-      {name:"Shoulder & scapular circles",secs:45,dose:"10 each direction",cue:"Relaxed. Let the shoulder blades move freely around the ribcage."},
-      {name:"Scapular retractions / band pull-aparts",secs:45,dose:"12 reps",cue:"Squeeze the shoulder blades together without shrugging toward the ears."},
-      {name:"Thoracic mobility",secs:45,dose:"6 per side",cue:"Open through the upper back and breathe out at the end range. Keep the ribs down."},
-      {name:"Light dumbbell rows",secs:60,dose:"12 reps very light, 1-second pause",cue:"Pull the elbow toward the hip. Square hips, no torso rotation."},
-      {name:"Light pressing prep",secs:45,dose:"10 reps light",cue:"Shoulders packed. Smooth, controlled bottom position."},
-      {name:"Hip hinge practice",secs:45,dose:"8 reps",cue:"Prep for the RDL later: hips back, bar close, neutral spine, soft knees."},
-      {name:"Warm-up set 1 — first compound",secs:60,dose:"8 reps @ ~50% of your working weight",cue:"Easy and clean. Build the pattern before the load."},
-      {name:"Warm-up set 2 — first compound",secs:55,dose:"4 reps @ ~70% of your working weight",cue:"Full control, well short of failure."}
-    ]},
-  { title:"Posterior chain prep",
-    focus:"Bracing, neutral spine, hip movement and knee comfort before hinging.",
-    items:[
-      {name:"Glute bridge",secs:60,dose:"12 reps with a 2-second squeeze",cue:"Ribs down, gentle posterior tilt, squeeze the glutes at the top."},
-      {name:"Bodyweight hip hinge",secs:45,dose:"10 reps",cue:"Hands on the hips. Push the hips back and keep the spine neutral throughout."},
-      {name:"Controlled RDL pattern",secs:60,dose:"8 reps with a dowel or empty bar",cue:"Bar stays close to the legs. Brace first, then let the hamstrings load."},
-      {name:"Gentle hamstring movement",secs:45,dose:"8 per side, easy range",cue:"Light and controlled — never stretch into pain or a strong pull."},
-      {name:"Reverse lunge / split squat pattern",secs:60,dose:"6 per side, bodyweight",cue:"Stable front foot, comfortable knee range, controlled descent."},
-      {name:"Warm-up set 1 — first hinge",secs:60,dose:"8 reps, empty bar or very light",cue:"Brace before every rep. The hips move, the spine does not."},
-      {name:"Warm-up set 2 — first hinge",secs:60,dose:"5 reps @ ~60% of your working weight",cue:"Controlled eccentric. Stop where the hamstrings limit the range."}
-    ]},
-  { title:"Full body prep",
-    focus:"A little of everything: squat pattern, hinge pattern, shoulders, press and pull.",
-    items:[
-      {name:"Bodyweight squat",secs:60,dose:"10 reps to comfortable depth",cue:"Knees track over the toes, whole foot planted, controlled tempo."},
-      {name:"Hip hinge",secs:45,dose:"10 reps",cue:"Hips back, ribs down, neutral spine."},
-      {name:"Shoulder mobility",secs:45,dose:"10 circles + 10 pull-aparts",cue:"Relaxed range, no shrugging, easy breathing."},
-      {name:"Light press",secs:45,dose:"10 reps, empty bar or light dumbbells",cue:"Glutes tight, ribs down, bar travels vertically. No leaning back."},
-      {name:"Light row",secs:45,dose:"12 reps light",cue:"Pull to the lower ribs and control the return."},
-      {name:"Warm-up set 1 — first compound",secs:60,dose:"8 reps @ ~50% of your working weight",cue:"Groove the pattern before adding load."},
-      {name:"Warm-up set 2 — first compound",secs:60,dose:"4 reps @ ~70% of your working weight",cue:"Sharp but easy. Stop well short of failure."}
-    ]}
-];
-
-const COOLDOWNS = [
-  { title:"Upper body cooldown",
-    items:[
-      {name:"Relaxed breathing",secs:60,dose:"6 slow breaths",cue:"Make the exhale longer than the inhale. Let the shoulders drop."},
-      {name:"Gentle chest opening",secs:45,dose:"20–30 sec per side",cue:"Easy doorway or wall opening. Comfortable range — never force it."},
-      {name:"Gentle lat mobility",secs:45,dose:"20–30 sec per side",cue:"Hold a rack, sit the hips back and breathe into the ribs."},
-      {name:"Easy shoulder movement",secs:45,dose:"10 slow circles each way",cue:"Loose and completely pain-free. Just restoring easy movement."},
-      {name:"Neck & upper trap release",secs:30,dose:"15 sec per side",cue:"Very light. Simply let the tension go."}
-    ]},
-  { title:"Lower body cooldown",
-    items:[
-      {name:"Easy walking in place",secs:60,dose:"Relaxed pace",cue:"Keep moving gently and let the heart rate settle."},
-      {name:"Relaxed breathing",secs:60,dose:"6 slow breaths",cue:"Long exhale. Let the hips and lower back settle."},
-      {name:"Gentle quad & hip flexor mobility",secs:45,dose:"20–30 sec per side",cue:"Stand tall with the glutes lightly engaged. No aggressive stretching."},
-      {name:"Easy hamstring mobility",secs:45,dose:"20–30 sec per side",cue:"Keep a soft knee and stop well before any strong pull."},
-      {name:"Gentle calf & ankle movement",secs:30,dose:"10 slow raises or ankle rocks",cue:"Comfortable range only."}
-    ]},
-  { title:"Upper body cooldown",
-    items:[
-      {name:"Relaxed breathing",secs:60,dose:"6 slow breaths",cue:"Longer exhale than inhale. Let the shoulders and jaw relax."},
-      {name:"Gentle lat mobility",secs:45,dose:"20–30 sec per side",cue:"Hold a rack, sit the hips back and breathe into the ribs."},
-      {name:"Gentle chest & biceps opening",secs:45,dose:"20–30 sec per side",cue:"Easy wall opening with a soft elbow. Never force it."},
-      {name:"Easy shoulder movement",secs:45,dose:"10 slow circles each way",cue:"Loose, pain-free movement to finish."},
-      {name:"Gentle hamstring reset",secs:30,dose:"20–30 sec",cue:"Soft knee, easy range — the hinge work is done for today."}
-    ]},
-  { title:"Posterior chain cooldown",
-    items:[
-      {name:"Easy walking in place",secs:60,dose:"Relaxed pace",cue:"Let the hips and lower back unload while the heart rate settles."},
-      {name:"Relaxed breathing",secs:60,dose:"6 slow breaths",cue:"Long exhale, ribs down. Let the brace fully release."},
-      {name:"Easy hamstring mobility",secs:45,dose:"20–30 sec per side",cue:"Soft knee. Stop well before any strong pull — no aggressive stretching."},
-      {name:"Gentle hip flexor & glute mobility",secs:45,dose:"20–30 sec per side",cue:"Stand tall, glutes lightly on, comfortable range only."},
-      {name:"Gentle calf & ankle movement",secs:30,dose:"10 slow raises or ankle rocks",cue:"Easy, comfortable range."}
-    ]},
-  { title:"Full body cooldown",
-    items:[
-      {name:"Easy walking in place",secs:45,dose:"Relaxed pace",cue:"Keep moving gently and let the breathing settle."},
-      {name:"Relaxed breathing",secs:60,dose:"6 slow breaths",cue:"Long exhale. Shoulders down, ribs down, jaw relaxed."},
-      {name:"Gentle chest & shoulder mobility",secs:45,dose:"20–30 sec per side",cue:"Comfortable opening, never forced."},
-      {name:"Gentle hip & quad mobility",secs:45,dose:"20–30 sec per side",cue:"Stand tall with the glutes lightly engaged."},
-      {name:"Easy hamstring mobility",secs:45,dose:"20–30 sec per side",cue:"Soft knee, easy range. Finish feeling comfortable, not stretched out."}
-    ]}
-];
-
-/* Shared posture / pelvic-control finisher. Runs after the main workout and
-   before the cooldown, and never counts toward the 45 minutes. Deliberately
-   light: this is control work, not another working set. */
-const FINISHER = {
-  title:"Posture & pelvic control",
-  items:[
-    {name:"Dead bug with breathing",secs:60,dose:"6–8 per side, slow",cue:"Ribs down, brace, then move. Exhale as the leg lowers and keep the lower back quiet."},
-    {name:"Glute bridge — posterior pelvic tilt",secs:60,dose:"10 reps with a 2-second squeeze",cue:"Tuck the pelvis gently first, then squeeze the glutes. No arching at the top."},
-    {name:"Side plank",secs:60,dose:"20–30 sec per side",cue:"Long straight line. Keep the ribs stacked over the pelvis and don't let the hip sag."},
-    {name:"Bird dog",secs:60,dose:"6–8 per side",cue:"Move slowly without rotating the torso. Reach long rather than lifting high."},
-    {name:"Gentle hip flexor mobility",secs:45,dose:"20–30 sec per side",cue:"Easy range with the glutes lightly engaged. Never push into pain."}
-  ]
-};
-
-/* =========================================================================
-   3. SAFETY CUES
-   ========================================================================= */
-const KNEE_CUES = [
-  "Knee tracks naturally over the toes",
-  "Keep the whole foot stable and planted",
-  "Use a comfortable, pain-free range of motion",
-  "Control the lowering phase — no dropping",
-  "Never push through sharp pain"
-];
-const POSTURE_CUES = {
-  hinge:["Brace before the first rep","Ribs down, neutral lower back","Move through the hips, not the spine","Keep the bar or dumbbells close to the body"],
-  bridge:["Ribs down — avoid excessive lumbar extension","Squeeze the glutes at the top","Chin lightly tucked, eyes forward","Drive through the heels"],
-  overhead:["Ribs down, glutes tight","Brace before you press","Avoid leaning back to finish the rep","Keep the bar path vertical"],
-  squat:["Brace before you descend","Neutral spine throughout","Whole foot planted, mid-foot pressure","Stand up through the hips and legs together"]
-};
-
-/* =========================================================================
-   4. CONSTANTS AND STATE
-   ========================================================================= */
-const APP = "lift-log-v2";
-const PROFILE_KEY = APP + ":active-profile";
-const INDEX_KEY = APP + ":profiles";
-const SETTINGS_KEY = APP + ":settings";
-const MAIN_LENGTH = 45 * 60;      // 45:00 — main workout only
-const TRANSITION_SECONDS = 5;
-const SESSION_VERSION = 4;
-const DAY_LABELS = ["Mon","Tue","Wed","Thu","Fri"];
-const DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
-
-let activeUser = "";
-let profile = null;
-let week = "A";
-let day = 0;
-let calendarDate = new Date();
-let weekendPreview = false;
-let ticker = null;
-let lastTs = 0;
-let lastSave = 0;
-let currentTab = "workout";
-
-const $ = id => document.getElementById(id);
-
-/* =========================================================================
-   5. SETTINGS
-   ========================================================================= */
-const DEFAULT_SETTINGS = {sound:true, volume:0.7, voice:true, vibration:true, confirmSkip:true};
-let settings = Object.assign({}, DEFAULT_SETTINGS);
-
-function loadSettings(){
-  try{
-    const raw = JSON.parse(localStorage.getItem(SETTINGS_KEY));
-    if(raw && typeof raw === "object") settings = Object.assign({}, DEFAULT_SETTINGS, raw);
-  }catch(e){ settings = Object.assign({}, DEFAULT_SETTINGS); }
-  settings.volume = Math.min(1, Math.max(0, Number(settings.volume)));
-  if(!isFinite(settings.volume)) settings.volume = DEFAULT_SETTINGS.volume;
-}
-function persistSettings(){
-  try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); }catch(e){}
-}
-function syncSettingsUI(){
-  $("setSound").checked = !!settings.sound;
-  $("setVoice").checked = !!settings.voice;
-  $("setVibration").checked = !!settings.vibration;
-  $("setConfirm").checked = !!settings.confirmSkip;
-  $("setVolume").value = Math.round(settings.volume * 100);
-  $("volLabel").textContent = Math.round(settings.volume * 100) + "%";
-}
-function updateSetting(key, value){
-  settings[key] = value;
-  persistSettings();
-  if(key === "sound" && value) Sound.play("blip");
-}
-function updateVolume(value){
-  settings.volume = Math.min(1, Math.max(0, Number(value) / 100));
-  $("volLabel").textContent = Math.round(settings.volume * 100) + "%";
-  persistSettings();
-}
-function openSettings(){ syncSettingsUI(); $("settingsModal").classList.remove("hidden"); }
-function closeSettings(){ $("settingsModal").classList.add("hidden"); }
-function testSound(){ Sound.unlock(); Sound.play("restEnd"); vibrate([40]); }
-
-/* =========================================================================
-   6. SOUND (Web Audio API — no audio files, no dependencies)
-   ========================================================================= */
-const Sound = (function(){
-  let ctx = null;
-  // pattern: [frequency, startOffset, duration, waveform, gainMultiplier]
-  const PATTERNS = {
-    blip:          [[880,0,.09,"sine",.7]],
-    warmupStart:   [[523.25,0,.18,"triangle",1],[659.25,.16,.26,"triangle",1]],
-    movementChange:[[698.46,0,.13,"sine",.8]],
-    warmupEnd:     [[523.25,0,.14,"triangle",1],[659.25,.13,.14,"triangle",1],[784,.26,.34,"triangle",1]],
-    mainStart:     [[392,0,.16,"triangle",1],[523.25,.15,.16,"triangle",1],[784,.3,.45,"triangle",1.1]],
-    restStart:     [[440,0,.16,"sine",.9],[329.63,.15,.28,"sine",.9]],
-    restWarn:      [[880,0,.08,"square",.45],[880,.17,.08,"square",.45],[880,.34,.11,"square",.5]],
-    restEnd:       [[784,0,.14,"triangle",1],[1046.5,.13,.3,"triangle",1]],
-    exerciseStart: [[659.25,0,.13,"triangle",.9],[880,.12,.24,"triangle",.9]],
-    setDone:       [[987.77,0,.11,"sine",.8]],
-    fiveMinLeft:   [[349.23,0,.24,"triangle",1],[261.63,.26,.42,"triangle",1]],
-    mainEnd:       [[784,0,.16,"triangle",1],[659.25,.16,.16,"triangle",1],[523.25,.32,.46,"triangle",1]],
-    finisherStart: [[493.88,0,.16,"triangle",.9],[659.25,.15,.3,"triangle",.9]],
-    finisherEnd:   [[659.25,0,.16,"sine",.9],[523.25,.15,.32,"sine",.9]],
-    cooldownStart: [[440,0,.3,"sine",.85],[329.63,.26,.46,"sine",.85]],
-    cooldownEnd:   [[523.25,0,.22,"sine",.9],[440,.2,.34,"sine",.9]],
-    complete:      [[523.25,0,.15,"triangle",1],[659.25,.14,.15,"triangle",1],[784,.28,.15,"triangle",1],[1046.5,.42,.6,"triangle",1.15]]
-  };
-  const VIBRATIONS = {
-    warmupStart:[60], movementChange:[25], warmupEnd:[60,60,60],
-    mainStart:[80,60,120], restStart:[40], restWarn:[30,60,30], restEnd:[60,50,60],
-    exerciseStart:[50,40,50], setDone:[25], fiveMinLeft:[100,80,100],
-    mainEnd:[120,80,120], finisherStart:[50], finisherEnd:[50,50], cooldownStart:[50], cooldownEnd:[50,50,50], complete:[80,60,80,60,180]
-  };
-
-  function ensure(){
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if(!AC) return null;
-    if(!ctx){
-      try{ ctx = new AC(); }catch(e){ return null; }
-    }
-    if(ctx.state === "suspended"){ try{ ctx.resume(); }catch(e){} }
-    return ctx;
-  }
-  function note(c, freq, at, dur, type, mul){
-    const osc = c.createOscillator(), gain = c.createGain();
-    osc.type = type || "sine";
-    osc.frequency.setValueAtTime(freq, at);
-    const peak = Math.max(0.0001, 0.2 * settings.volume * (mul || 1));
-    gain.gain.setValueAtTime(0.0001, at);
-    gain.gain.exponentialRampToValueAtTime(peak, at + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-    osc.connect(gain); gain.connect(c.destination);
-    osc.start(at); osc.stop(at + dur + 0.06);
-  }
-  return {
-    unlock(){ ensure(); },
-    play(name){
-      vibrate(VIBRATIONS[name]);
-      if(!settings.sound || settings.volume <= 0) return;
-      const pattern = PATTERNS[name];
-      if(!pattern) return;
-      const c = ensure();
-      if(!c) return;
-      try{
-        const t0 = c.currentTime + 0.02;
-        for(let i = 0; i < pattern.length; i++){
-          const p = pattern[i];
-          note(c, p[0], t0 + p[1], p[2], p[3], p[4]);
-        }
-      }catch(e){}
-    }
-  };
-})();
-
-function vibrate(pattern){
-  if(!settings.vibration || !pattern) return;
-  try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
-}
-function say(text){
-  if(!settings.voice || !text) return;
-  try{
-    if("speechSynthesis" in window){
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1.05;
-      u.volume = Math.min(1, settings.volume + 0.2);
-      window.speechSynthesis.speak(u);
-    }
-  }catch(e){}
-}
-
-/* =========================================================================
-   7. HELPERS
-   ========================================================================= */
-function dateKey(date){
-  const d = date || new Date();
-  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
-}
-function fmt(seconds){
-  const n = Math.max(0, Math.ceil(Number(seconds) || 0));
-  return String(Math.floor(n/60)).padStart(2,"0") + ":" + String(n%60).padStart(2,"0");
-}
-function fmtShort(seconds){
-  const n = Math.max(0, Math.round(Number(seconds) || 0));
-  return Math.floor(n/60) + ":" + String(n%60).padStart(2,"0");
-}
-function fmtApprox(seconds){
-  const n = Math.max(0, Math.round(Number(seconds) || 0));
-  const m = Math.floor(n/60), s = n%60;
-  return s === 0 ? m + " min" : m + ":" + String(s).padStart(2,"0") + " min";
-}
-function repsCount(setsText){
-  const m = String(setsText).match(/(\d+)\s*×/);
-  return m ? Number(m[1]) : 2;
-}
-function parseRest(restText){
-  const nums = (String(restText).match(/\d+(?:\.\d+)?/g) || [60]).map(Number);
-  const max = Math.max.apply(null, nums);
-  return Math.round(String(restText).indexOf("min") >= 0 ? max * 60 : max);
-}
-function sumSecs(items){ return items.reduce((total,item)=>total + item.secs, 0); }
-function escapeHtml(text){
-  return String(text == null ? "" : text)
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
-}
-function weekdayIndex(date){
-  const n = (date || new Date()).getDay();
-  return (n > 0 && n < 6) ? n - 1 : null;
-}
-function mondayOf(date){
-  const result = new Date(date || new Date());
-  result.setDate(result.getDate() - ((result.getDay() + 6) % 7));
-  return result;
-}
-function safeDay(value){ const n = Number(value); return (n >= 0 && n <= 4) ? n : 0; }
-function safeWeek(value){ return (value === "A" || value === "B" || value === "C") ? value : "A"; }
-
-/* =========================================================================
-   8. PROFILE + PERSISTENCE
-   ========================================================================= */
-function userKey(name){ return APP + ":profile:" + encodeURIComponent(name || activeUser); }
-function getProfiles(){
-  try{ return JSON.parse(localStorage.getItem(INDEX_KEY)) || []; }catch(e){ return []; }
-}
-function defaultProfile(name){ return {version:2, name:name, variation:"A", cycle:1, history:{}}; }
-function loadProfile(name){
-  try{
-    const raw = JSON.parse(localStorage.getItem(userKey(name)));
-    if(raw && typeof raw === "object"){
-      if(!raw.history || typeof raw.history !== "object") raw.history = {};
-      raw.variation = safeWeek(raw.variation);
-      raw.cycle = Number(raw.cycle) || 1;
-      return raw;
-    }
-  }catch(e){}
-  return defaultProfile(name);
-}
-function save(){
-  if(!profile) return;
-  try{ localStorage.setItem(userKey(), JSON.stringify(profile)); }catch(e){}
-  lastSave = Date.now();
-}
-
-function todayEntry(){
-  if(!profile) return null;
-  return profile.history[dateKey()] || null;
-}
-function session(){
-  const entry = todayEntry();
-  if(!entry || !entry.session || entry.session.v !== SESSION_VERSION) return null;
-  return entry.session;
-}
-function exList(entry){
-  const variation = safeWeek(entry.variation);
-  const dayIndex = safeDay(entry.day);
-  return W[variation][dayIndex].ex;
-}
-function warmupFor(entry){ return WARMUPS[safeDay(entry.day)]; }
-function cooldownFor(entry){ return COOLDOWNS[safeDay(entry.day)]; }
-
-function blankSession(){
-  return {
-    v:SESSION_VERSION, phase:"warmup", running:false,
-    warmIndex:0, warmRemaining:0, warmElapsed:0,
-    transitionRemaining:TRANSITION_SECONDS,
-    mainRemaining:MAIN_LENGTH, mainElapsed:0, exercise:0,
-    resting:false, restRemaining:0, restTotal:0, restWarned:false,
-    pendingAdvance:false, restDone:false,
-    warnedFiveMin:false, mainTimeUp:false,
-    finIndex:0, finRemaining:0, finElapsed:0,
-    coolIndex:0, coolRemaining:0, coolElapsed:0
-  };
-}
-
-/* =========================================================================
-   9. TICKER — independent warm-up / main / rest / cooldown timers
-   ========================================================================= */
-function startTicker(){
-  if(ticker) return;
-  lastTs = Date.now();
-  ticker = setInterval(tick, 200);
-}
-function stopTicker(){
-  if(ticker){ clearInterval(ticker); ticker = null; }
-}
-function tick(){
-  const s = session();
-  const now = Date.now();
-  let dt = (now - lastTs) / 1000;
-  lastTs = now;
-  if(!s){ stopTicker(); return; }
-  if(!s.running) return;
-  if(!(dt > 0)) return;
-  if(dt > 3600) dt = 3600;
-
-  if(s.phase === "warmup"){
-    s.warmRemaining -= dt;
-    s.warmElapsed += dt;
-    if(s.warmRemaining <= 0){ warmNext(false); return; }
-  }else if(s.phase === "transition"){
-    s.transitionRemaining -= dt;
-    if(s.transitionRemaining <= 0){ beginMain(); return; }
-  }else if(s.phase === "main"){
-    const before = s.mainRemaining;
-    s.mainRemaining -= dt;
-    s.mainElapsed += dt;
-    if(before > 300 && s.mainRemaining <= 300 && !s.warnedFiveMin){
-      s.warnedFiveMin = true;
-      Sound.play("fiveMinLeft");
-      say("Five minutes left in the main workout.");
-    }
-    if(before > 0 && s.mainRemaining <= 0 && !s.mainTimeUp){
-      s.mainTimeUp = true;
-      Sound.play("mainEnd");
-      say("Forty five minutes complete. Finish your set and wrap up.");
-      renderMain();
-    }
-    if(s.resting){
-      const restBefore = s.restRemaining;
-      s.restRemaining -= dt;
-      if(restBefore > 5 && s.restRemaining <= 5 && !s.restWarned){
-        s.restWarned = true;
-        Sound.play("restWarn");
-      }
-      if(s.restRemaining <= 0){ endRest(false); return; }
-    }
-  }else if(s.phase === "finisher"){
-    s.finRemaining -= dt;
-    s.finElapsed += dt;
-    if(s.finRemaining <= 0){ finNext(false); return; }
-  }else if(s.phase === "cooldown"){
-    s.coolRemaining -= dt;
-    s.coolElapsed += dt;
-    if(s.coolRemaining <= 0){ coolNext(false); return; }
-  }else{
-    return;
-  }
-
-  renderClocks();
-  if(now - lastSave > 2000) save();
-}
-
-function toggleRun(){
-  const s = session();
-  if(!s) return;
-  Sound.unlock();
-  s.running = !s.running;
-  lastTs = Date.now();
-  const entry = todayEntry();
-  if(entry && entry.status !== "completed") entry.status = s.running ? "in-progress" : "partial";
-  if(s.running) startTicker();
-  save();
-  render();
-  if(!s.running) say("Paused.");
-}
-
-/* =========================================================================
-   10. SESSION FLOW
-   ========================================================================= */
-function startWorkout(){
-  Sound.unlock();
-  if(!profile) return;
-  const existing = todayEntry();
-  if(existing && existing.status === "completed" &&
-     !confirm("Today is already logged as completed. Start a new session and overwrite it?")) return;
-
-  const entry = {
-    date: dateKey(),
-    variation: safeWeek(week),
-    day: safeDay(day),
-    sets: {},
-    skipped: [],
-    notes: (existing && existing.notes) || "",
-    status: "in-progress",
-    session: blankSession()
-  };
-  profile.history[dateKey()] = entry;
-
-  const s = entry.session;
-  const items = warmupFor(entry).items;
-  s.phase = "warmup";
-  s.warmIndex = 0;
-  s.warmRemaining = items[0].secs;
-  s.running = true;
-
-  save();
-  startTicker();
-  render();
-  Sound.play("warmupStart");
-  say("Warm-up. " + items[0].name + ".");
-}
-
-function warmNext(manual){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || s.phase !== "warmup") return;
-  const items = warmupFor(entry).items;
-  if(s.warmIndex < items.length - 1){
-    s.warmIndex++;
-    s.warmRemaining = items[s.warmIndex].secs;
-    Sound.play("movementChange");
-    say(items[s.warmIndex].name);
-    save();
-    render();
-  }else{
-    finishWarmup(!!manual);
-  }
-}
-function warmPrev(){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || s.phase !== "warmup") return;
-  const items = warmupFor(entry).items;
-  s.warmIndex = Math.max(0, s.warmIndex - 1);
-  s.warmRemaining = items[s.warmIndex].secs;
-  Sound.play("movementChange");
-  save();
-  render();
-}
-function restartWarmup(){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s) return;
-  const items = warmupFor(entry).items;
-  s.phase = "warmup";
-  s.warmIndex = 0;
-  s.warmRemaining = items[0].secs;
-  s.warmElapsed = 0;
-  s.running = true;
-  startTicker();
-  save();
-  render();
-  Sound.play("warmupStart");
-  say("Restarting the warm-up.");
-}
-function finishWarmup(skipped){
-  const s = session();
-  if(!s) return;
-  s.phase = "transition";
-  s.transitionRemaining = TRANSITION_SECONDS;
-  s.running = true;
-  startTicker();
-  save();
-  render();
-  Sound.play("warmupEnd");
-  say(skipped ? "Warm-up skipped. Main workout starting." : "Warm-up complete. Main workout starting.");
-}
-function beginMain(){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s) return;
-  s.phase = "main";
-  s.mainRemaining = MAIN_LENGTH;   // always starts at exactly 45:00
-  s.mainElapsed = 0;
-  s.exercise = 0;
-  s.resting = false;
-  s.restRemaining = 0;
-  s.restDone = false;
-  s.pendingAdvance = false;
-  s.warnedFiveMin = false;
-  s.mainTimeUp = false;
-  s.running = true;
-  entry.status = "in-progress";
-  lastTs = Date.now();
-  startTicker();
-  save();
-  render();
-  Sound.play("mainStart");
-  say("Main workout. Forty five minutes. First exercise: " + exList(entry)[0][0] + ".");
-}
-
-function completeSet(){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || s.phase !== "main") return;
-  Sound.unlock();
-  const list = exList(entry);
-  const exercise = list[s.exercise];
-  const target = repsCount(exercise[1]);
-  const done = entry.sets[s.exercise] || [];
-  if(done.length >= target) return;
-
-  entry.sets[s.exercise] = done.concat([done.length]);
-  const completed = entry.sets[s.exercise].length;
-  const exerciseFinished = completed >= target;
-  const isLastExercise = s.exercise >= list.length - 1;
-  s.restDone = false;
-
-  if(exerciseFinished && isLastExercise){
-    Sound.play("setDone");
-    save();
-    finishMain(false);
-    return;
-  }
-
-  s.resting = true;
-  s.restTotal = parseRest(exercise[3]);
-  s.restRemaining = s.restTotal;
-  s.restWarned = false;
-  s.pendingAdvance = exerciseFinished;
-  if(!s.running){ s.running = true; lastTs = Date.now(); }
-  startTicker();
-  save();
-  render();
-  Sound.play("restStart");
-  say(exerciseFinished
-    ? exercise[0] + " complete. Rest, then " + list[s.exercise + 1][0] + "."
-    : "Set " + completed + " done. Rest " + fmtShort(s.restTotal) + ".");
-}
-
-function undoSet(index){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || s.phase !== "main") return;
-  const done = entry.sets[s.exercise] || [];
-  if(!done.length) return;
-  entry.sets[s.exercise] = done.slice(0, Math.max(0, index));
-  save();
-  render();
-}
-
-function endRest(manual){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || !s.resting) return;
-  s.resting = false;
-  s.restRemaining = 0;
-  if(s.pendingAdvance){
-    s.pendingAdvance = false;
-    nextExercise(false);
-    return;
-  }
-  s.restDone = true;
-  save();
-  render();
-  if(!manual){
-    Sound.play("restEnd");
-    say("Rest over. Next set.");
-  }else{
-    Sound.play("blip");
-  }
-}
-function addRestTime(seconds){
-  const s = session();
-  if(!s || !s.resting) return;
-  s.restRemaining += seconds;
-  s.restTotal += seconds;
-  s.restWarned = false;
-  save();
-  renderClocks();
-}
-function addMainTime(seconds){
-  const s = session();
-  if(!s || s.phase !== "main") return;
-  s.mainRemaining += seconds;
-  if(s.mainRemaining > 0){ s.mainTimeUp = false; }
-  if(s.mainRemaining > 300){ s.warnedFiveMin = false; }
-  save();
-  render();
-}
-
-function nextExercise(skipped){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || s.phase !== "main") return;
-  const list = exList(entry);
-  if(skipped){
-    if(!entry.skipped) entry.skipped = [];
-    if(entry.skipped.indexOf(s.exercise) < 0) entry.skipped.push(s.exercise);
-  }
-  if(s.exercise >= list.length - 1){
-    save();
-    finishMain(false);
-    return;
-  }
-  s.exercise++;
-  s.resting = false;
-  s.restRemaining = 0;
-  s.restDone = false;
-  s.pendingAdvance = false;
-  save();
-  render();
-  Sound.play("exerciseStart");
-  say("Next: " + list[s.exercise][0] + ".");
-}
-function prevExercise(){
-  const s = session();
-  if(!s || s.phase !== "main" || s.exercise === 0) return;
-  s.exercise--;
-  s.resting = false;
-  s.restRemaining = 0;
-  s.restDone = false;
-  s.pendingAdvance = false;
-  save();
-  render();
-  Sound.play("exerciseStart");
-}
-function skipExercise(){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || s.phase !== "main") return;
-  const name = exList(entry)[s.exercise][0];
-  if(settings.confirmSkip && !confirm("Skip " + name + "?")) return;
-  nextExercise(true);
-}
-
-function finishMain(manual){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s) return;
-  if(manual && settings.confirmSkip && s.phase === "main" && !confirm("Finish the main workout now and move to the cooldown?")) return;
-  s.phase = "mainComplete";
-  s.running = false;
-  s.resting = false;
-  s.restRemaining = 0;
-  s.restDone = false;
-  s.pendingAdvance = false;
-  entry.status = "completed";
-  advanceVariationIfEarned(entry);
-  save();
-  render();
-  if(!s.mainTimeUp) Sound.play("mainEnd");
-  say("Main workout complete. Great work. Cooldown next.");
-}
-
-function startFinisher(){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s) return;
-  const items = FINISHER.items;
-  s.phase = "finisher";
-  s.finIndex = 0;
-  s.finRemaining = items[0].secs;
-  s.running = true;
-  lastTs = Date.now();
-  startTicker();
-  save();
-  render();
-  Sound.play("finisherStart");
-  say("Finisher. " + items[0].name + ".");
-}
-function finNext(manual){
-  const s = session();
-  if(!s || s.phase !== "finisher") return;
-  const items = FINISHER.items;
-  if(s.finIndex < items.length - 1){
-    s.finIndex++;
-    s.finRemaining = items[s.finIndex].secs;
-    Sound.play("movementChange");
-    say(items[s.finIndex].name);
-    save();
-    render();
-  }else{
-    Sound.play("finisherEnd");
-    startCooldown();
-  }
-}
-function finPrev(){
-  const s = session();
-  if(!s || s.phase !== "finisher") return;
-  const items = FINISHER.items;
-  s.finIndex = Math.max(0, s.finIndex - 1);
-  s.finRemaining = items[s.finIndex].secs;
-  Sound.play("movementChange");
-  save();
-  render();
-}
-
-function startCooldown(){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s) return;
-  const items = cooldownFor(entry).items;
-  s.phase = "cooldown";
-  s.coolIndex = 0;
-  s.coolRemaining = items[0].secs;
-  s.running = true;
-  lastTs = Date.now();
-  startTicker();
-  save();
-  render();
-  Sound.play("cooldownStart");
-  say("Cooldown. " + items[0].name + ".");
-}
-function coolNext(manual){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || s.phase !== "cooldown") return;
-  const items = cooldownFor(entry).items;
-  if(s.coolIndex < items.length - 1){
-    s.coolIndex++;
-    s.coolRemaining = items[s.coolIndex].secs;
-    Sound.play("movementChange");
-    say(items[s.coolIndex].name);
-    save();
-    render();
-  }else{
-    Sound.play("cooldownEnd");
-    finishSession(false);
-  }
-}
-function coolPrev(){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s || s.phase !== "cooldown") return;
-  const items = cooldownFor(entry).items;
-  s.coolIndex = Math.max(0, s.coolIndex - 1);
-  s.coolRemaining = items[s.coolIndex].secs;
-  Sound.play("movementChange");
-  save();
-  render();
-}
-
-function finishSession(skipped){
-  const entry = todayEntry(), s = session();
-  if(!entry || !s) return;
-  s.phase = "complete";
-  s.running = false;
-  entry.status = "completed";
-  stopTicker();
-  save();
-  render();
-  renderTracking();
-  Sound.play("complete");
-  say(skipped ? "Workout complete. Nice work." : "Workout complete. Excellent session.");
-}
-
-function startNewSession(){
-  if(!confirm("Start another session? Today's completed session will be replaced.")) return;
-  const entry = todayEntry();
-  if(entry) delete entry.session;
-  stopTicker();
-  save();
-  week = profile.variation;
-  day = weekdayIndex() === null ? 0 : weekdayIndex();
-  render();
-}
-function cancelWorkout(){
-  const entry = todayEntry();
-  if(!entry || !confirm("Cancel this session? Completed sets stay saved for today.")) return;
-  stopTicker();
-  const completed = completedSetCount(entry);
-  entry.status = completed > 0 ? "partial" : "missed";
-  delete entry.session;
-  save();
-  render();
-  renderTracking();
-}
-function resetToday(){
-  if(!confirm("Reset all of today's saved workout progress?")) return;
-  stopTicker();
-  if(profile) delete profile.history[dateKey()];
-  save();
-  week = profile ? profile.variation : "A";
-  const d = weekdayIndex();
-  day = d === null ? 0 : d;
-  closeSettings();
-  render();
-  renderTracking();
-}
-function saveNotes(){
-  const entry = todayEntry();
-  if(!entry) return;
-  entry.notes = $("notesInput").value;
-  save();
-}
-
-function completedSetCount(entry){
-  if(!entry || !entry.sets) return 0;
-  return Object.keys(entry.sets).reduce((total,key)=>total + entry.sets[key].length, 0);
-}
-function totalSetCount(entry){
-  return exList(entry).reduce((total,exercise)=>total + repsCount(exercise[1]), 0);
-}
-function completedExerciseCount(entry){
-  const list = exList(entry);
-  let count = 0;
-  for(let i = 0; i < list.length; i++){
-    const done = (entry.sets && entry.sets[i]) ? entry.sets[i].length : 0;
-    if(done >= repsCount(list[i][1])) count++;
-  }
-  return count;
-}
-function advanceVariationIfEarned(entry){
-  if(entry.variationAdvanced) return;
-  const monday = mondayOf();
-  const keys = [];
-  for(let i = 0; i < 5; i++){
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    keys.push(dateKey(d));
-  }
-  const allDone = keys.every(function(key){
-    const record = profile.history[key];
-    return record && record.status === "completed" && record.variation === entry.variation;
-  });
-  if(!allDone) return;
-  entry.variationAdvanced = true;
-  const previous = entry.variation;
-  profile.variation = previous === "A" ? "B" : previous === "B" ? "C" : "A";
-  profile.cycle = (Number(profile.cycle) || 1) + 1;
-  entry.cycleMessage = previous === "A"
-    ? "Week A conquered — Week B unlocked."
-    : previous === "B"
-      ? "Week B survived. Week C is waiting."
-      : "Three-week cycle complete. Back to Week A — stronger this time.";
-}
-
-/* =========================================================================
-   11. TEMPO INTERPRETATION
-   ========================================================================= */
-function tempoInfo(exercise){
-  const raw = String(exercise[4] || "").trim();
-  const name = String(exercise[0] || "").toLowerCase();
-  const match = raw.match(/^(\d+)\s*-\s*(\d+)\s*-\s*(\d+)$/);
-  if(!match){
-    return {
-      value: raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "Controlled",
-      steps: ["Move slowly and deliberately", "No bouncing or momentum", "Keep breathing through the set"]
-    };
-  }
-  const lower = Number(match[1]), pause = Number(match[2]), lift = Number(match[3]);
-  const isPull = /row|curl|pull|chin|face/.test(name);
-  const isSqueeze = /thrust|bridge|raise|curl|fly|squeeze|calf/.test(name) || lift >= 2;
-  const isHold = /plank|hold|dead bug/.test(name);
-
-  const lowerLabel = isHold ? "Set up: " + lower + " sec"
-    : (isPull ? "↓ Return / lower: " : "↓ Lower: ") + lower + " sec";
-  const pauseLabel = pause > 0
-    ? (isPull ? "→ Pause at the top: " : "→ Pause: ") + pause + " sec"
-    : "→ No pause — flow straight through";
-  const liftLabel = isPull
-    ? "↑ Pull + squeeze: " + lift + " sec"
-    : isSqueeze
-      ? "↑ Lift + squeeze: " + lift + " sec"
-      : "↑ Lift: " + lift + " sec";
-
-  return {value: raw, steps:[lowerLabel, pauseLabel, liftLabel]};
-}
-
-function safetyFor(exercise){
-  const name = String(exercise[0] || "").toLowerCase();
-  const category = exercise[8];
-  const blocks = [];
-  const isKnee = category === "knee" || /squat|lunge|split/.test(name);
-  if(isKnee) blocks.push({kind:"knee", title:"Knee focus", cues:KNEE_CUES});
-  if(/thrust|bridge/.test(name)){
-    blocks.push({kind:"posture", title:"Posture & bracing", cues:POSTURE_CUES.bridge});
-  }else if(/romanian|rdl|deadlift|hinge|pendlay/.test(name)){
-    blocks.push({kind:"posture", title:"Posture & bracing", cues:POSTURE_CUES.hinge});
-  }else if(/overhead press/.test(name)){
-    blocks.push({kind:"posture", title:"Posture & bracing", cues:POSTURE_CUES.overhead});
-  }else if(isKnee && /squat/.test(name)){
-    blocks.push({kind:"posture", title:"Posture & bracing", cues:POSTURE_CUES.squat});
-  }
-  return blocks;
-}
-function tagFor(exercise){
-  const category = exercise[8];
-  const labels = {knee:"Knee", posterior:"Hinge", compound:"Compound", accessory:"Accessory", core:"Core"};
-  return '<span class="tag ' + escapeHtml(category) + '">' + escapeHtml(labels[category] || category) + "</span>";
-}
-
-/* =========================================================================
-   12. RENDERING
-   ========================================================================= */
-function showScreen(id){
-  const screens = document.querySelectorAll("#workoutTab > .screen");
-  for(let i = 0; i < screens.length; i++){
-    screens[i].classList.toggle("hidden", screens[i].id !== id);
-  }
-}
-function isRestDay(){ return weekdayIndex() === null && !weekendPreview; }
-
-function render(){
-  if(!profile) return;
-  const s = session();
-  const phase = s ? s.phase : "overview";
-  document.body.dataset.phase = (phase === "main" && s.resting) ? "rest" : phase;
-
-  if(!s && isRestDay()){
-    renderRestDay();
-    showScreen("restDayScreen");
-    renderChrome();
-    return;
-  }
-
-  if(phase === "overview"){
-    renderOverview();
-    showScreen("screenOverview");
-  }else if(phase === "warmup"){
-    renderWarmup();
-    showScreen("screenWarmup");
-  }else if(phase === "transition"){
-    renderTransition();
-    showScreen("screenTransition");
-  }else if(phase === "main"){
-    renderMain();
-    showScreen("screenMain");
-  }else if(phase === "mainComplete"){
-    renderMainComplete();
-    showScreen("screenMainComplete");
-  }else if(phase === "finisher"){
-    renderFinisher();
-    showScreen("screenFinisher");
-  }else if(phase === "cooldown"){
-    renderCooldown();
-    showScreen("screenCooldown");
-  }else{
-    renderComplete();
-    showScreen("screenComplete");
-  }
-  renderClocks();
-  renderChrome();
-}
-
-function renderChrome(){
-  const s = session();
-  const phase = s ? s.phase : "overview";
-  const inSession = !!s && phase !== "complete";
-  const onWorkoutTab = currentTab === "workout";
-  const restDay = !s && isRestDay();
-  const showSticky = inSession && onWorkoutTab && !restDay;
-
-  $("appTabs").classList.toggle("hidden", showSticky);
-  $("stickyBar").classList.toggle("hidden", !showSticky);
-  $("topSub").textContent = inSession
-    ? {warmup:"Warm-up in progress", transition:"Main workout starting", main:(s.resting ? "Resting" : "Main workout"), mainComplete:"Main workout complete", finisher:"Finisher in progress", cooldown:"Cooldown in progress"}[phase] || ""
-    : "Strength + hypertrophy · 45-minute main workout";
-
-  if(!showSticky) return;
-  const btn = $("stickyAction");
-  let label = "Continue", action = null, disabled = false;
-  if(phase === "warmup"){
-    label = s.running ? "Next movement" : "Start warm-up";
-    action = s.running ? function(){ warmNext(true); } : toggleRun;
-  }else if(phase === "transition"){
-    label = "Start main workout now";
-    action = beginMain;
-  }else if(phase === "main"){
-    const entry = todayEntry();
-    const list = exList(entry);
-    const exercise = list[s.exercise];
-    const done = (entry.sets[s.exercise] || []).length;
-    const target = repsCount(exercise[1]);
-    if(s.resting){
-      label = "Skip rest";
-      action = function(){ endRest(true); };
-    }else if(done >= target){
-      label = s.exercise >= list.length - 1 ? "Finish main workout" : "Next exercise";
-      action = s.exercise >= list.length - 1 ? function(){ finishMain(true); } : function(){ nextExercise(false); };
-    }else{
-      label = "Complete set " + (done + 1) + " of " + target;
-      action = completeSet;
-      disabled = !s.running;
-      if(!s.running){ label = "Resume workout"; action = toggleRun; disabled = false; }
-    }
-  }else if(phase === "mainComplete"){
-    label = "Start finisher";
-    action = startFinisher;
-  }else if(phase === "finisher"){
-    label = s.running ? "Next movement" : "Start finisher";
-    action = s.running ? function(){ finNext(true); } : toggleRun;
-  }else if(phase === "cooldown"){
-    label = s.running ? "Next movement" : "Start cooldown";
-    action = s.running ? function(){ coolNext(true); } : toggleRun;
-  }
-  btn.textContent = label;
-  btn.disabled = disabled;
-  btn.onclick = action;
-}
-
-function renderRestDay(){
-  const jokes = [
-    "Whoa there, champion. Today is a rest day.",
-    "No squats today. Your muscles have filed for paid leave.",
-    "Congratulations. Today's workout is called: Absolutely Nothing.",
-    "Go chill. Eat protein. Recover. Get stronger while doing suspiciously little.",
-    "Rest day unlocked. Your only mission: recover like a professional athlete.",
-    "The barbell misses you already. But not enough to disturb your weekend.",
-    "Today we train the most underrated muscle: patience. See you Monday!"
-  ];
-  const tips = [
-    "Go for a relaxed walk",
-    "Do a little easy mobility if you feel stiff",
-    "Eat well",
-    "Sleep like it is part of your training",
-    "Do something that does not involve counting reps"
-  ];
-  const now = new Date();
-  $("restDayMessage").textContent = jokes[now.getDate() % jokes.length];
-  $("restDaySuggestion").textContent = "Optional recovery idea: " + tips[(now.getDate() + now.getMonth()) % tips.length];
-}
-function previewWorkout(){
-  weekendPreview = true;
-  week = profile.variation;
-  day = 0;
-  render();
-}
-function returnToRestDay(){
-  weekendPreview = false;
-  render();
-}
-
-function renderWeekDaySelectors(){
-  const weeksBox = $("weeks");
-  weeksBox.innerHTML = "";
-  ["A","B","C"].forEach(function(v){
-    const b = document.createElement("button");
-    b.textContent = "Week " + v;
-    b.className = (v === week) ? "active" : "";
-    b.onclick = function(){ week = v; render(); };
-    weeksBox.appendChild(b);
-  });
-  const daysBox = $("days");
-  daysBox.innerHTML = "";
-  W[week].forEach(function(_, i){
-    const b = document.createElement("button");
-    b.textContent = "Day " + (i + 1);
-    b.title = W[week][i].name;
-    b.className = (i === day) ? "active" : "";
-    b.onclick = function(){ day = i; render(); };
-    daysBox.appendChild(b);
-  });
-}
-
-function renderOverview(){
-  week = safeWeek(week);
-  day = safeDay(day);
-  renderWeekDaySelectors();
-  $("returnRestBtn").classList.toggle("hidden", !weekendPreview);
-
-  const plan = W[week][day];
-  const warm = WARMUPS[day];
-  const cool = COOLDOWNS[day];
-  const warmSecs = sumSecs(warm.items);
-  const coolSecs = sumSecs(cool.items);
-  const finSecs = sumSecs(FINISHER.items);
-  const totalSets = plan.ex.reduce(function(total, ex){ return total + repsCount(ex[1]); }, 0);
-
-  $("ovName").textContent = plan.name;
-  $("ovSub").textContent = "Week " + week + " · " + DAY_NAMES[day] + " · " + plan.ex.length + " exercises · " + totalSets + " working sets";
-  $("ovWarm").textContent = fmt(warmSecs);
-  $("ovMain").textContent = fmt(MAIN_LENGTH);
-  $("ovFin").textContent = fmt(finSecs);
-  $("ovCool").textContent = fmt(coolSecs);
-  $("ovTotal").textContent = fmtApprox(warmSecs + MAIN_LENGTH + finSecs + coolSecs);
-  $("ovWarmFocus").textContent = warm.title + " — " + warm.focus;
-
-  $("ovList").innerHTML = plan.ex.map(function(ex, i){
-    return '<li class="prev-item">' +
-      '<span class="prev-num">' + (i + 1) + "</span>" +
-      '<div class="prev-body"><div class="prev-name">' + escapeHtml(ex[0]) + "</div>" +
-      '<div class="prev-meta">' + escapeHtml(ex[1]) + " · RIR " + escapeHtml(ex[2]) + " · rest " + escapeHtml(ex[3]) + "</div></div>" +
-      tagFor(ex) + "</li>";
-  }).join("");
-}
-
-function renderWarmup(){
-  const entry = todayEntry(), s = session();
-  const warm = warmupFor(entry);
-  const items = warm.items;
-  const item = items[s.warmIndex];
-  $("warmStep").textContent = "Warm-up: " + (s.warmIndex + 1) + " of " + items.length;
-  $("warmTitle").textContent = warm.title;
-  $("warmName").textContent = item.name;
-  $("warmDose").textContent = item.dose;
-  $("warmCue").textContent = item.cue;
-  $("warmPauseBtn").textContent = s.running ? "Pause" : "Start";
-  $("warmDots").innerHTML = items.map(function(_, i){
-    return '<i class="' + (i < s.warmIndex ? "done" : i === s.warmIndex ? "now" : "") + '"></i>';
-  }).join("");
-}
-
-function renderTransition(){
-  const s = session();
-  $("transWarmTime").textContent = "Warm-up time: " + fmtShort(s.warmElapsed) + " — not deducted from your 45 minutes.";
-}
-
-function renderMain(){
-  const entry = todayEntry(), s = session();
-  const list = exList(entry);
-  s.exercise = Math.min(Math.max(0, s.exercise), list.length - 1);
-  const exercise = list[s.exercise];
-  const target = repsCount(exercise[1]);
-  const done = entry.sets[s.exercise] || [];
-
-  $("mainStep").textContent = "Exercise " + (s.exercise + 1) + " of " + list.length;
-  $("exCount").textContent = "Exercise " + (s.exercise + 1) + " of " + list.length;
-  $("exName").textContent = exercise[0];
-  $("exTag").className = "tag " + exercise[8];
-  $("exTag").textContent = ({knee:"Knee", posterior:"Hinge", compound:"Compound", accessory:"Accessory", core:"Core"})[exercise[8]] || exercise[8];
-  $("exSets").textContent = exercise[1];
-  $("exRir").textContent = exercise[2];
-  $("exRest").textContent = exercise[3];
-  $("exTempo").textContent = exercise[4];
-  $("exMuscles").textContent = exercise[5];
-  $("exWhy").textContent = exercise[6];
-  $("exCues").textContent = exercise[7];
-  $("mainPauseBtn").textContent = s.running ? "Pause workout" : "Resume workout";
-  $("mainNote").textContent = s.mainTimeUp
-    ? "45 minutes are up — finish your last sets or wrap up when ready."
-    : "Runs only during the main workout · warm-up, finisher & cooldown excluded";
-
-  const tempo = tempoInfo(exercise);
-  $("tempoValue").textContent = tempo.value;
-  $("tempoSteps").innerHTML = tempo.steps.map(function(step){
-    return "<span>" + escapeHtml(step) + "</span>";
-  }).join("");
-
-  $("safetyBlocks").innerHTML = safetyFor(exercise).map(function(block){
-    return '<div class="safety ' + (block.kind === "posture" ? "posture" : "") + '">' +
-      '<span class="label">' + escapeHtml(block.title) + "</span><ul>" +
-      block.cues.map(function(cue){ return "<li>" + escapeHtml(cue) + "</li>"; }).join("") +
-      "</ul></div>";
-  }).join("");
-
-  const setBox = $("setButtons");
-  setBox.innerHTML = "";
-  for(let i = 0; i < target; i++){
-    const b = document.createElement("button");
-    const isDone = i < done.length;
-    b.className = "set" + (isDone ? " done" : (i === done.length ? " next" : ""));
-    b.textContent = "Set " + (i + 1);
-    b.onclick = isDone ? function(){ undoSet(i); } : completeSet;
-    b.title = isDone ? "Tap to undo" : "Tap to mark complete";
-    b.setAttribute("aria-pressed", isDone ? "true" : "false");
-    b.setAttribute("aria-label", "Set " + (i + 1) + (isDone ? " complete, tap to undo" : ", not yet completed"));
-    setBox.appendChild(b);
-  }
-
-  const completeBtn = $("completeSetBtn");
-  if(done.length >= target){
-    completeBtn.textContent = s.exercise >= list.length - 1 ? "Finish main workout" : "Next exercise";
-    completeBtn.onclick = s.exercise >= list.length - 1 ? function(){ finishMain(true); } : function(){ nextExercise(false); };
-    completeBtn.disabled = false;
-  }else{
-    completeBtn.textContent = "Complete set " + (done.length + 1) + " of " + target;
-    completeBtn.onclick = completeSet;
-    completeBtn.disabled = !s.running;
-  }
-
-  $("restCard").classList.toggle("hidden", !s.resting);
-  $("readyBanner").classList.toggle("hidden", !(s.restDone && !s.resting));
-  if(s.resting){
-    const nextUp = s.pendingAdvance && s.exercise < list.length - 1
-      ? "Up next: <b>" + escapeHtml(list[s.exercise + 1][0]) + "</b>"
-      : "Up next: <b>Set " + Math.min(done.length + 1, target) + " of " + target + " · " + escapeHtml(exercise[0]) + "</b>";
-    $("restUpNext").innerHTML = nextUp;
-  }
-}
-
-function renderMainComplete(){
-  const entry = todayEntry(), s = session();
-  const list = exList(entry);
-  const skipped = entry.skipped || [];
-  $("mcSub").textContent = W[safeWeek(entry.variation)][safeDay(entry.day)].name + " · Week " + safeWeek(entry.variation);
-  $("mcExercises").textContent = completedExerciseCount(entry) + "/" + list.length;
-  $("mcSets").textContent = completedSetCount(entry) + "/" + totalSetCount(entry);
-  $("mcTime").textContent = fmtShort(s.mainElapsed);
-  $("mcSkipped").textContent = skipped.length;
-  $("mcSkippedList").innerHTML = skipped.length
-    ? '<div class="section-title">Skipped exercises</div><div class="breakdown">' +
-      skipped.map(function(i){
-        return '<div class="brow"><span>' + escapeHtml(list[i] ? list[i][0] : "Exercise " + (i+1)) + "</span><b>skipped</b></div>";
-      }).join("") + "</div>"
-    : "";
-  $("notesInput").value = entry.notes || "";
-  const cool = cooldownFor(entry);
-  $("mcCooldownNote").textContent = FINISHER.title + " — " + fmtApprox(sumSecs(FINISHER.items)) +
-    " of light control work, then a " + fmtApprox(sumSecs(cool.items)) + " " + cool.title.toLowerCase() +
-    ". Neither counts toward the 45 minutes.";
-}
-
-function renderFinisher(){
-  const s = session();
-  const items = FINISHER.items;
-  const item = items[s.finIndex];
-  $("finStep").textContent = "Finisher: " + (s.finIndex + 1) + " of " + items.length;
-  $("finTitle").textContent = FINISHER.title;
-  $("finName").textContent = item.name;
-  $("finDose").textContent = item.dose;
-  $("finCue").textContent = item.cue;
-  $("finPauseBtn").textContent = s.running ? "Pause" : "Start";
-  $("finDots").innerHTML = items.map(function(_, i){
-    return '<i class="' + (i < s.finIndex ? "done" : i === s.finIndex ? "now" : "") + '"></i>';
-  }).join("");
-}
-
-function renderCooldown(){
-  const entry = todayEntry(), s = session();
-  const cool = cooldownFor(entry);
-  const items = cool.items;
-  const item = items[s.coolIndex];
-  $("coolStep").textContent = "Cooldown: " + (s.coolIndex + 1) + " of " + items.length;
-  $("coolTitle").textContent = cool.title;
-  $("coolName").textContent = item.name;
-  $("coolDose").textContent = item.dose;
-  $("coolCue").textContent = item.cue;
-  $("coolPauseBtn").textContent = s.running ? "Pause" : "Start";
-  $("coolDots").innerHTML = items.map(function(_, i){
-    return '<i class="' + (i < s.coolIndex ? "done" : i === s.coolIndex ? "now" : "") + '"></i>';
-  }).join("");
-}
-
-function renderComplete(){
-  const entry = todayEntry(), s = session();
-  const list = exList(entry);
-  const total = s.warmElapsed + s.mainElapsed + (s.finElapsed || 0) + s.coolElapsed;
-  $("fcSub").textContent = W[safeWeek(entry.variation)][safeDay(entry.day)].name + " · Week " + safeWeek(entry.variation);
-  $("fcSets").textContent = completedSetCount(entry) + "/" + totalSetCount(entry);
-  $("fcExercises").textContent = completedExerciseCount(entry) + "/" + list.length;
-  $("fcTotal").textContent = fmtShort(total);
-  $("fcWarm").textContent = fmtShort(s.warmElapsed);
-  $("fcMain").textContent = fmtShort(s.mainElapsed);
-  $("fcFin").textContent = fmtShort(s.finElapsed || 0);
-  $("fcCool").textContent = fmtShort(s.coolElapsed);
-  const hasNotes = !!(entry.notes && entry.notes.trim());
-  $("fcNotesWrap").classList.toggle("hidden", !hasNotes);
-  if(hasNotes) $("fcNotes").textContent = entry.notes;
-  $("fcMessage").innerHTML = entry.cycleMessage
-    ? '<div class="safety posture" style="margin-top:16px"><span class="label">Progression</span><ul><li>' +
-      escapeHtml(entry.cycleMessage) + "</li></ul></div>"
-    : "";
-}
-
-function renderClocks(){
-  const entry = todayEntry(), s = session();
-  if(!s) return;
-
-  if(s.phase === "warmup"){
-    const items = warmupFor(entry).items;
-    let remaining = Math.max(0, s.warmRemaining);
-    for(let i = s.warmIndex + 1; i < items.length; i++) remaining += items[i].secs;
-    $("warmClock").textContent = fmt(s.warmRemaining);
-    $("warmTotalLeft").textContent = fmtShort(remaining);
-    const current = items[s.warmIndex].secs;
-    $("warmBar").style.width = (current ? Math.min(100, (1 - s.warmRemaining / current) * 100) : 0) + "%";
-  }else if(s.phase === "transition"){
-    $("transCount").textContent = String(Math.max(1, Math.ceil(s.transitionRemaining)));
-  }else if(s.phase === "main"){
-    $("mainClock").textContent = fmt(s.mainRemaining);
-    const elapsedRatio = Math.min(1, Math.max(0, (MAIN_LENGTH - s.mainRemaining) / MAIN_LENGTH));
-    $("mainBar").style.width = (elapsedRatio * 100) + "%";
-    const overtime = $("mainOvertime");
-    if(s.mainRemaining < 0){
-      overtime.classList.remove("hidden");
-      overtime.textContent = "Overtime +" + fmtShort(-s.mainRemaining);
-    }else{
-      overtime.classList.add("hidden");
-    }
-    if(s.resting){
-      $("restClock").textContent = fmt(s.restRemaining);
-      $("restBar").style.width = (s.restTotal ? Math.min(100, (1 - s.restRemaining / s.restTotal) * 100) : 0) + "%";
-    }
-  }else if(s.phase === "finisher"){
-    const items = FINISHER.items;
-    let remaining = Math.max(0, s.finRemaining);
-    for(let i = s.finIndex + 1; i < items.length; i++) remaining += items[i].secs;
-    $("finClock").textContent = fmt(s.finRemaining);
-    $("finTotalLeft").textContent = fmtShort(remaining);
-    const current = items[s.finIndex].secs;
-    $("finBar").style.width = (current ? Math.min(100, (1 - s.finRemaining / current) * 100) : 0) + "%";
-  }else if(s.phase === "cooldown"){
-    const items = cooldownFor(entry).items;
-    let remaining = Math.max(0, s.coolRemaining);
-    for(let i = s.coolIndex + 1; i < items.length; i++) remaining += items[i].secs;
-    $("coolClock").textContent = fmt(s.coolRemaining);
-    $("coolTotalLeft").textContent = fmtShort(remaining);
-    const current = items[s.coolIndex].secs;
-    $("coolBar").style.width = (current ? Math.min(100, (1 - s.coolRemaining / current) * 100) : 0) + "%";
-  }
-}
-
-/* =========================================================================
-   13. TABS + TRACKING
-   ========================================================================= */
-function setTab(tab){
-  currentTab = tab;
-  $("workoutTab").classList.toggle("hidden", tab !== "workout");
-  $("trackingTab").classList.toggle("hidden", tab !== "tracking");
-  const buttons = document.querySelectorAll(".app-tabs button");
-  for(let i = 0; i < buttons.length; i++){
-    buttons[i].classList.toggle("active", buttons[i].dataset.tab === tab);
-  }
-  if(tab === "tracking") renderTracking();
-  renderChrome();
-}
-function recordForDate(d){ return (profile && profile.history[dateKey(d)]) || null; }
-function changeMonth(amount){
-  calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + amount, 1);
-  renderTracking();
-}
-function renderTracking(){
-  if(!profile) return;
-  const year = calendarDate.getFullYear(), month = calendarDate.getMonth(), today = dateKey();
-  $("monthLabel").textContent = new Intl.DateTimeFormat(undefined, {month:"long", year:"numeric"}).format(calendarDate);
-  const calendar = $("calendar");
-  calendar.innerHTML = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
-    .map(function(x){ return '<div class="dow">' + x + "</div>"; }).join("");
-  const first = new Date(year, month, 1);
-  const offset = (first.getDay() + 6) % 7;
-  const count = new Date(year, month + 1, 0).getDate();
-  for(let i = 0; i < offset; i++) calendar.insertAdjacentHTML("beforeend", "<div></div>");
-  for(let n = 1; n <= count; n++){
-    const d = new Date(year, month, n);
-    const key = dateKey(d);
-    const entry = recordForDate(d);
-    const weekend = d.getDay() === 0 || d.getDay() === 6;
-    const status = weekend ? "recovery"
-      : key > today ? "future"
-      : (entry && entry.status === "completed") ? "done"
-      : (entry && (entry.status === "partial" || entry.status === "in-progress")) ? "partial"
-      : "missed";
-    calendar.insertAdjacentHTML("beforeend",
-      '<div class="calendar-day ' + status + (key === today ? " today" : "") + '" title="' + key + ": " + status + '">' + n + "</div>");
-  }
-  let done = 0, partial = 0, missed = 0;
-  const monday = mondayOf();
-  for(let i = 0; i < 5; i++){
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    const key = dateKey(d), entry = recordForDate(d);
-    if(key > today) continue;
-    if(entry && entry.status === "completed") done++;
-    else if(entry && (entry.status === "partial" || entry.status === "in-progress")) partial++;
-    else missed++;
-  }
-  const todayIndex = weekdayIndex();
-  $("cycleInfo").textContent = "Current week: " + profile.variation + " · Cycle " + profile.cycle +
-    " · Today: " + (todayIndex === null ? "Rest day" : DAY_NAMES[todayIndex]);
-  $("doneCount").textContent = done;
-  $("partialCount").textContent = partial;
-  $("plannedCount").textContent = missed;
-}
-
-/* =========================================================================
-   14. PROFILE GATE
-   ========================================================================= */
-function chooseProfile(name){
-  const input = $("usernameInput");
-  const value = String(name || input.value).trim().replace(/\s+/g, " ");
-  if(!value){ input.focus(); return; }
-  const profiles = getProfiles();
-  if(profiles.indexOf(value) < 0){
-    profiles.push(value);
-    try{ localStorage.setItem(INDEX_KEY, JSON.stringify(profiles)); }catch(e){}
-  }
-  activeUser = value;
-  profile = loadProfile(value);
-  try{ localStorage.setItem(PROFILE_KEY, value); }catch(e){}
-  $("profileName").textContent = value;
-  $("profileGate").classList.add("hidden");
-  weekendPreview = false;
-
-  // Restore any in-flight session for today (paused, so the user resumes deliberately).
-  const entry = todayEntry();
-  const s = session();
-  if(entry && s){
-    week = safeWeek(entry.variation);
-    day = safeDay(entry.day);
-    s.running = false;
-    if(s.phase !== "complete" && entry.status === "in-progress") entry.status = "partial";
-    if(s.phase !== "complete") weekendPreview = true; // keep the session visible on weekends
-    save();
-  }else{
-    week = profile.variation;
-    const d = weekdayIndex();
-    day = d === null ? 0 : d;
-  }
-  setTab("workout");
-  render();
-  renderTracking();
-}
-function renderProfileList(){
-  const list = $("profileList");
-  list.innerHTML = "";
-  getProfiles().forEach(function(name){
-    const b = document.createElement("button");
-    b.className = "ghost";
-    b.textContent = name;
-    b.onclick = function(){ chooseProfile(name); };
-    list.appendChild(b);
-  });
-}
-function changeProfile(){
-  stopTicker();
-  renderProfileList();
-  $("usernameInput").value = "";
-  $("profileGate").classList.remove("hidden");
-  $("usernameInput").focus();
-}
-
-/* =========================================================================
-   15. BOOT
-   ========================================================================= */
-$("usernameInput").addEventListener("keydown", function(e){
-  if(e.key === "Enter") chooseProfile();
-});
-$("settingsModal").addEventListener("click", function(e){
-  if(e.target === this) closeSettings();
-});
-document.addEventListener("keydown", function(e){
-  if(e.key === "Escape") closeSettings();
-});
-document.addEventListener("visibilitychange", function(){
-  if(!document.hidden){ lastTs = Date.now(); render(); }
-});
-window.addEventListener("beforeunload", function(){ save(); });
-["pointerdown","keydown"].forEach(function(evt){
-  window.addEventListener(evt, function once(){
-    Sound.unlock();
-    window.removeEventListener(evt, once);
-  }, {passive:true});
-});
-
-loadSettings();
-syncSettingsUI();
-
-(function boot(){
-  const saved = localStorage.getItem(PROFILE_KEY);
-  if(saved && getProfiles().indexOf(saved) >= 0){
-    chooseProfile(saved);
-  }else{
-    renderProfileList();
-    $("profileGate").classList.remove("hidden");
-  }
-})();
-</script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
 </body>
 </html>
