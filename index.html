@@ -15,7 +15,7 @@
   --text:#eef1f8;--muted:#8e97ad;--dim:#69738a;
   --accent:#4d7cfe;--accent-ink:#0a1226;
   --success:#2ee6a8;--warn:#ffb020;--danger:#ff5a68;
-  --warmup:#ff8a3d;--main:#4d7cfe;--rest:#22d3ee;--cool:#a78bfa;
+  --warmup:#ff8a3d;--main:#4d7cfe;--rest:#22d3ee;--finisher:#f472b6;--cool:#a78bfa;
   --phase:var(--accent);
   --r:18px;--r-sm:12px;
   --shadow:0 10px 30px rgba(0,0,0,.45);
@@ -27,6 +27,7 @@ body[data-phase="transition"]{--phase:var(--main)}
 body[data-phase="main"]{--phase:var(--main)}
 body[data-phase="rest"]{--phase:var(--rest)}
 body[data-phase="mainComplete"]{--phase:var(--success)}
+body[data-phase="finisher"]{--phase:var(--finisher)}
 body[data-phase="cooldown"]{--phase:var(--cool)}
 body[data-phase="complete"]{--phase:var(--success)}
 
@@ -214,7 +215,7 @@ textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent
 .prev-body{flex:1;min-width:0}
 .prev-name{font-size:14.5px;font-weight:700;line-height:1.3}
 .prev-meta{font-size:12px;color:var(--muted);margin-top:2px}
-.plan{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-top:4px}
 .plan > div{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-sm);padding:13px 10px;text-align:center;min-width:0}
 .plan .ph{font-size:10px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
 .plan .pv{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
@@ -222,6 +223,7 @@ textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent
 .plan .warm .ph{color:var(--warmup)}
 .plan .mainp{border-color:color-mix(in srgb,var(--main) 45%,transparent);background:color-mix(in srgb,var(--main) 12%,var(--surface2))}
 .plan .mainp .ph{color:var(--main)}
+.plan .fin .ph{color:var(--finisher)}
 .plan .cool .ph{color:var(--cool)}
 
 /* ---------- rest day ---------- */
@@ -352,11 +354,17 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
         <div class="plan">
           <div class="warm"><div class="ph">Warm-up</div><div class="pv" id="ovWarm">6:00</div><div class="pn">not counted</div></div>
           <div class="mainp"><div class="ph">Main workout</div><div class="pv" id="ovMain">45:00</div><div class="pn">timed</div></div>
+          <div class="fin"><div class="ph">Finisher</div><div class="pv" id="ovFin">4:45</div><div class="pn">not counted</div></div>
           <div class="cool"><div class="ph">Cooldown</div><div class="pv" id="ovCool">4:00</div><div class="pn">not counted</div></div>
         </div>
-        <p class="small" style="margin-top:10px">The 45:00 timer covers the main workout only — warm-up and cooldown never take time away from it. Total time on the floor ≈ <b id="ovTotal"></b>.</p>
+        <p class="small" style="margin-top:10px">The 45:00 timer covers the main workout only — the warm-up, finisher and cooldown never take time away from it. Total time on the floor ≈ <b id="ovTotal"></b>.</p>
 
-        <div class="section-title">Exercises</div>
+        <button class="primary big" id="startWorkoutBtn" onclick="startWorkout()" style="margin-top:18px">Start workout</button>
+        <p class="small" style="margin-top:10px;text-align:center">Begins with the guided warm-up. The 45:00 main workout timer starts only after the warm-up finishes.</p>
+      </div>
+
+      <div class="card">
+        <div class="section-title" style="margin-top:0">Exercises</div>
         <ul class="prev-list" id="ovList"></ul>
 
         <div class="section-title">Warm-up focus</div>
@@ -424,7 +432,7 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
         <div class="label">Main workout timer</div>
         <div class="clock phase-color" id="mainClock">45:00</div>
         <div class="overtime hidden" id="mainOvertime"></div>
-        <div class="clock-note" id="mainNote">Runs only during the main workout · warm-up &amp; cooldown excluded</div>
+        <div class="clock-note" id="mainNote">Runs only during the main workout · warm-up, finisher &amp; cooldown excluded</div>
         <div class="track"><i id="mainBar"></i></div>
         <div class="timer-controls">
           <button class="primary phase" id="mainPauseBtn" onclick="toggleRun()">Pause workout</button>
@@ -509,12 +517,41 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
         <textarea id="notesInput" placeholder="Weights used, how it felt, knee feedback…" oninput="saveNotes()"></textarea>
       </div>
       <div class="card tight">
-        <div class="label" style="color:var(--cool)">Up next — cooldown</div>
+        <div class="label" style="color:var(--finisher)">Up next — finisher</div>
         <p class="text" style="margin-top:8px" id="mcCooldownNote"></p>
       </div>
     </section>
 
-    <!-- ============ PHASE 4 — COOLDOWN ============ -->
+    <!-- ============ PHASE 4 — FINISHER (posture / pelvic control) ============ -->
+    <section class="screen hidden" id="screenFinisher">
+      <div class="phase-banner">
+        <span class="name">Finisher</span>
+        <span class="step" id="finStep">1 of 5</span>
+      </div>
+      <div class="card timer-card">
+        <div class="label" id="finTitle"></div>
+        <div class="move-name" id="finName"></div>
+        <div class="move-dose" id="finDose"></div>
+        <div class="clock sm phase-color" id="finClock">01:00</div>
+        <div class="clock-note">Finisher remaining: <b id="finTotalLeft">4:45</b> · the 45:00 main workout timer has stopped</div>
+        <div class="track"><i id="finBar"></i></div>
+        <div class="dots" id="finDots"></div>
+        <div class="timer-controls">
+          <button class="primary phase" id="finPauseBtn" onclick="toggleRun()">Pause</button>
+          <button class="ghost" onclick="finPrev()">Previous</button>
+          <button class="ghost" onclick="finNext(true)">Skip</button>
+        </div>
+      </div>
+      <div class="card tight">
+        <div class="label">How to do it</div>
+        <p class="text" id="finCue" style="margin-top:8px"></p>
+      </div>
+      <div class="card tight">
+        <button class="ghost big" onclick="startCooldown()">Skip finisher and cool down</button>
+      </div>
+    </section>
+
+    <!-- ============ PHASE 5 — COOLDOWN ============ -->
     <section class="screen hidden" id="screenCooldown">
       <div class="phase-banner">
         <span class="name">Cooldown</span>
@@ -559,6 +596,7 @@ input[type=range]{width:100%;accent-color:var(--accent);height:30px}
         <div class="breakdown">
           <div class="brow"><span><i class="dotmark" style="background:var(--warmup)"></i>Warm-up</span><b id="fcWarm">0:00</b></div>
           <div class="brow"><span><i class="dotmark" style="background:var(--main)"></i>Main workout</span><b id="fcMain">0:00</b></div>
+          <div class="brow"><span><i class="dotmark" style="background:var(--finisher)"></i>Finisher</span><b id="fcFin">0:00</b></div>
           <div class="brow"><span><i class="dotmark" style="background:var(--cool)"></i>Cooldown</span><b id="fcCool">0:00</b></div>
         </div>
         <div id="fcNotesWrap" class="hidden">
@@ -839,6 +877,20 @@ const COOLDOWNS = [
     ]}
 ];
 
+/* Shared posture / pelvic-control finisher. Runs after the main workout and
+   before the cooldown, and never counts toward the 45 minutes. Deliberately
+   light: this is control work, not another working set. */
+const FINISHER = {
+  title:"Posture & pelvic control",
+  items:[
+    {name:"Dead bug with breathing",secs:60,dose:"6–8 per side, slow",cue:"Ribs down, brace, then move. Exhale as the leg lowers and keep the lower back quiet."},
+    {name:"Glute bridge — posterior pelvic tilt",secs:60,dose:"10 reps with a 2-second squeeze",cue:"Tuck the pelvis gently first, then squeeze the glutes. No arching at the top."},
+    {name:"Side plank",secs:60,dose:"20–30 sec per side",cue:"Long straight line. Keep the ribs stacked over the pelvis and don't let the hip sag."},
+    {name:"Bird dog",secs:60,dose:"6–8 per side",cue:"Move slowly without rotating the torso. Reach long rather than lifting high."},
+    {name:"Gentle hip flexor mobility",secs:45,dose:"20–30 sec per side",cue:"Easy range with the glutes lightly engaged. Never push into pain."}
+  ]
+};
+
 /* =========================================================================
    3. SAFETY CUES
    ========================================================================= */
@@ -865,7 +917,7 @@ const INDEX_KEY = APP + ":profiles";
 const SETTINGS_KEY = APP + ":settings";
 const MAIN_LENGTH = 45 * 60;      // 45:00 — main workout only
 const TRANSITION_SECONDS = 5;
-const SESSION_VERSION = 3;
+const SESSION_VERSION = 4;
 const DAY_LABELS = ["Mon","Tue","Wed","Thu","Fri"];
 const DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday"];
 
@@ -940,6 +992,8 @@ const Sound = (function(){
     setDone:       [[987.77,0,.11,"sine",.8]],
     fiveMinLeft:   [[349.23,0,.24,"triangle",1],[261.63,.26,.42,"triangle",1]],
     mainEnd:       [[784,0,.16,"triangle",1],[659.25,.16,.16,"triangle",1],[523.25,.32,.46,"triangle",1]],
+    finisherStart: [[493.88,0,.16,"triangle",.9],[659.25,.15,.3,"triangle",.9]],
+    finisherEnd:   [[659.25,0,.16,"sine",.9],[523.25,.15,.32,"sine",.9]],
     cooldownStart: [[440,0,.3,"sine",.85],[329.63,.26,.46,"sine",.85]],
     cooldownEnd:   [[523.25,0,.22,"sine",.9],[440,.2,.34,"sine",.9]],
     complete:      [[523.25,0,.15,"triangle",1],[659.25,.14,.15,"triangle",1],[784,.28,.15,"triangle",1],[1046.5,.42,.6,"triangle",1.15]]
@@ -948,7 +1002,7 @@ const Sound = (function(){
     warmupStart:[60], movementChange:[25], warmupEnd:[60,60,60],
     mainStart:[80,60,120], restStart:[40], restWarn:[30,60,30], restEnd:[60,50,60],
     exerciseStart:[50,40,50], setDone:[25], fiveMinLeft:[100,80,100],
-    mainEnd:[120,80,120], cooldownStart:[50], cooldownEnd:[50,50,50], complete:[80,60,80,60,180]
+    mainEnd:[120,80,120], finisherStart:[50], finisherEnd:[50,50], cooldownStart:[50], cooldownEnd:[50,50,50], complete:[80,60,80,60,180]
   };
 
   function ensure(){
@@ -1107,6 +1161,7 @@ function blankSession(){
     resting:false, restRemaining:0, restTotal:0, restWarned:false,
     pendingAdvance:false, restDone:false,
     warnedFiveMin:false, mainTimeUp:false,
+    finIndex:0, finRemaining:0, finElapsed:0,
     coolIndex:0, coolRemaining:0, coolElapsed:0
   };
 }
@@ -1163,6 +1218,10 @@ function tick(){
       }
       if(s.restRemaining <= 0){ endRest(false); return; }
     }
+  }else if(s.phase === "finisher"){
+    s.finRemaining -= dt;
+    s.finElapsed += dt;
+    if(s.finRemaining <= 0){ finNext(false); return; }
   }else if(s.phase === "cooldown"){
     s.coolRemaining -= dt;
     s.coolElapsed += dt;
@@ -1448,6 +1507,48 @@ function finishMain(manual){
   say("Main workout complete. Great work. Cooldown next.");
 }
 
+function startFinisher(){
+  const entry = todayEntry(), s = session();
+  if(!entry || !s) return;
+  const items = FINISHER.items;
+  s.phase = "finisher";
+  s.finIndex = 0;
+  s.finRemaining = items[0].secs;
+  s.running = true;
+  lastTs = Date.now();
+  startTicker();
+  save();
+  render();
+  Sound.play("finisherStart");
+  say("Finisher. " + items[0].name + ".");
+}
+function finNext(manual){
+  const s = session();
+  if(!s || s.phase !== "finisher") return;
+  const items = FINISHER.items;
+  if(s.finIndex < items.length - 1){
+    s.finIndex++;
+    s.finRemaining = items[s.finIndex].secs;
+    Sound.play("movementChange");
+    say(items[s.finIndex].name);
+    save();
+    render();
+  }else{
+    Sound.play("finisherEnd");
+    startCooldown();
+  }
+}
+function finPrev(){
+  const s = session();
+  if(!s || s.phase !== "finisher") return;
+  const items = FINISHER.items;
+  s.finIndex = Math.max(0, s.finIndex - 1);
+  s.finRemaining = items[s.finIndex].secs;
+  Sound.play("movementChange");
+  save();
+  render();
+}
+
 function startCooldown(){
   const entry = todayEntry(), s = session();
   if(!entry || !s) return;
@@ -1679,6 +1780,9 @@ function render(){
   }else if(phase === "mainComplete"){
     renderMainComplete();
     showScreen("screenMainComplete");
+  }else if(phase === "finisher"){
+    renderFinisher();
+    showScreen("screenFinisher");
   }else if(phase === "cooldown"){
     renderCooldown();
     showScreen("screenCooldown");
@@ -1701,7 +1805,7 @@ function renderChrome(){
   $("appTabs").classList.toggle("hidden", showSticky);
   $("stickyBar").classList.toggle("hidden", !showSticky);
   $("topSub").textContent = inSession
-    ? {warmup:"Warm-up in progress", transition:"Main workout starting", main:(s.resting ? "Resting" : "Main workout"), mainComplete:"Main workout complete", cooldown:"Cooldown in progress"}[phase] || ""
+    ? {warmup:"Warm-up in progress", transition:"Main workout starting", main:(s.resting ? "Resting" : "Main workout"), mainComplete:"Main workout complete", finisher:"Finisher in progress", cooldown:"Cooldown in progress"}[phase] || ""
     : "Strength + hypertrophy · 45-minute main workout";
 
   if(!showSticky) return;
@@ -1732,8 +1836,11 @@ function renderChrome(){
       if(!s.running){ label = "Resume workout"; action = toggleRun; disabled = false; }
     }
   }else if(phase === "mainComplete"){
-    label = "Start cooldown";
-    action = startCooldown;
+    label = "Start finisher";
+    action = startFinisher;
+  }else if(phase === "finisher"){
+    label = s.running ? "Next movement" : "Start finisher";
+    action = s.running ? function(){ finNext(true); } : toggleRun;
   }else if(phase === "cooldown"){
     label = s.running ? "Next movement" : "Start cooldown";
     action = s.running ? function(){ coolNext(true); } : toggleRun;
@@ -1808,14 +1915,16 @@ function renderOverview(){
   const cool = COOLDOWNS[day];
   const warmSecs = sumSecs(warm.items);
   const coolSecs = sumSecs(cool.items);
+  const finSecs = sumSecs(FINISHER.items);
   const totalSets = plan.ex.reduce(function(total, ex){ return total + repsCount(ex[1]); }, 0);
 
   $("ovName").textContent = plan.name;
   $("ovSub").textContent = "Week " + week + " · " + DAY_NAMES[day] + " · " + plan.ex.length + " exercises · " + totalSets + " working sets";
   $("ovWarm").textContent = fmt(warmSecs);
   $("ovMain").textContent = fmt(MAIN_LENGTH);
+  $("ovFin").textContent = fmt(finSecs);
   $("ovCool").textContent = fmt(coolSecs);
-  $("ovTotal").textContent = fmtApprox(warmSecs + MAIN_LENGTH + coolSecs);
+  $("ovTotal").textContent = fmtApprox(warmSecs + MAIN_LENGTH + finSecs + coolSecs);
   $("ovWarmFocus").textContent = warm.title + " — " + warm.focus;
 
   $("ovList").innerHTML = plan.ex.map(function(ex, i){
@@ -1871,7 +1980,7 @@ function renderMain(){
   $("mainPauseBtn").textContent = s.running ? "Pause workout" : "Resume workout";
   $("mainNote").textContent = s.mainTimeUp
     ? "45 minutes are up — finish your last sets or wrap up when ready."
-    : "Runs only during the main workout · warm-up & cooldown excluded";
+    : "Runs only during the main workout · warm-up, finisher & cooldown excluded";
 
   const tempo = tempoInfo(exercise);
   $("tempoValue").textContent = tempo.value;
@@ -1938,8 +2047,24 @@ function renderMainComplete(){
     : "";
   $("notesInput").value = entry.notes || "";
   const cool = cooldownFor(entry);
-  $("mcCooldownNote").textContent = cool.title + " — " + fmtApprox(sumSecs(cool.items)) +
-    " of relaxed breathing and gentle mobility. This does not count toward the 45 minutes.";
+  $("mcCooldownNote").textContent = FINISHER.title + " — " + fmtApprox(sumSecs(FINISHER.items)) +
+    " of light control work, then a " + fmtApprox(sumSecs(cool.items)) + " " + cool.title.toLowerCase() +
+    ". Neither counts toward the 45 minutes.";
+}
+
+function renderFinisher(){
+  const s = session();
+  const items = FINISHER.items;
+  const item = items[s.finIndex];
+  $("finStep").textContent = "Finisher: " + (s.finIndex + 1) + " of " + items.length;
+  $("finTitle").textContent = FINISHER.title;
+  $("finName").textContent = item.name;
+  $("finDose").textContent = item.dose;
+  $("finCue").textContent = item.cue;
+  $("finPauseBtn").textContent = s.running ? "Pause" : "Start";
+  $("finDots").innerHTML = items.map(function(_, i){
+    return '<i class="' + (i < s.finIndex ? "done" : i === s.finIndex ? "now" : "") + '"></i>';
+  }).join("");
 }
 
 function renderCooldown(){
@@ -1961,13 +2086,14 @@ function renderCooldown(){
 function renderComplete(){
   const entry = todayEntry(), s = session();
   const list = exList(entry);
-  const total = s.warmElapsed + s.mainElapsed + s.coolElapsed;
+  const total = s.warmElapsed + s.mainElapsed + (s.finElapsed || 0) + s.coolElapsed;
   $("fcSub").textContent = W[safeWeek(entry.variation)][safeDay(entry.day)].name + " · Week " + safeWeek(entry.variation);
   $("fcSets").textContent = completedSetCount(entry) + "/" + totalSetCount(entry);
   $("fcExercises").textContent = completedExerciseCount(entry) + "/" + list.length;
   $("fcTotal").textContent = fmtShort(total);
   $("fcWarm").textContent = fmtShort(s.warmElapsed);
   $("fcMain").textContent = fmtShort(s.mainElapsed);
+  $("fcFin").textContent = fmtShort(s.finElapsed || 0);
   $("fcCool").textContent = fmtShort(s.coolElapsed);
   const hasNotes = !!(entry.notes && entry.notes.trim());
   $("fcNotesWrap").classList.toggle("hidden", !hasNotes);
@@ -2007,6 +2133,14 @@ function renderClocks(){
       $("restClock").textContent = fmt(s.restRemaining);
       $("restBar").style.width = (s.restTotal ? Math.min(100, (1 - s.restRemaining / s.restTotal) * 100) : 0) + "%";
     }
+  }else if(s.phase === "finisher"){
+    const items = FINISHER.items;
+    let remaining = Math.max(0, s.finRemaining);
+    for(let i = s.finIndex + 1; i < items.length; i++) remaining += items[i].secs;
+    $("finClock").textContent = fmt(s.finRemaining);
+    $("finTotalLeft").textContent = fmtShort(remaining);
+    const current = items[s.finIndex].secs;
+    $("finBar").style.width = (current ? Math.min(100, (1 - s.finRemaining / current) * 100) : 0) + "%";
   }else if(s.phase === "cooldown"){
     const items = cooldownFor(entry).items;
     let remaining = Math.max(0, s.coolRemaining);
