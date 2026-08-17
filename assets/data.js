@@ -183,6 +183,28 @@ const COOLDOWNS = [
    arm    = shoulder -> elbow -> hand
    load   = the barbell / dumbbell, drawn at the hand
    ========================================================================= */
+/* Free Lottie animations (lottiefiles.com, Lottie Simple License — self-hosting
+   permitted, attribution encouraged not required). A few movement patterns had
+   no dedicated free animation on LottieFiles, so they reuse the closest match:
+   benchPress -> pushup, lateralRaise -> overheadPress, calfRaise/carry -> generic. */
+const DEMO_LOTTIE = {
+  squat:"assets/lotties/squat.json",
+  hinge:"assets/lotties/hinge.json",
+  lunge:"assets/lotties/lunge.json",
+  bridge:"assets/lotties/bridge.json",
+  benchPress:"assets/lotties/pushup.json",
+  pushup:"assets/lotties/pushup.json",
+  overheadPress:"assets/lotties/overheadPress.json",
+  row:"assets/lotties/row.json",
+  lateralRaise:"assets/lotties/overheadPress.json",
+  curl:"assets/lotties/curl.json",
+  calfRaise:"assets/lotties/generic.json",
+  sidePlank:"assets/lotties/sidePlank.json",
+  deadBug:"assets/lotties/deadBug.json",
+  carry:"assets/lotties/generic.json",
+  generic:"assets/lotties/generic.json"
+};
+
 const DEMOS = {
   squat:{
     title:"Squat pattern", dur:"3s",
@@ -355,6 +377,20 @@ function demoKeyFor(exercise){
   if(/dead bug/.test(n)) return "deadBug";
   if(/suitcase|hold/.test(n)) return "carry";
   return "generic";
+}
+
+/* Animated movement demo as a Lottie player, wrapped the same way the old
+   SVG demo was. Falls back to the SVG stick-figure loop if a Lottie source
+   is ever missing, so the popup never renders empty. */
+function demoAnimHtml(key){
+  const demo = DEMOS[key] || DEMOS.generic;
+  const src = DEMO_LOTTIE[key] || DEMO_LOTTIE.generic;
+  const inner = src
+    ? '<lottie-player src="' + escapeHtml(src) + '" background="transparent" speed="1" ' +
+      'class="demo-lottie" autoplay loop></lottie-player>'
+    : demoSvg(demo);
+  return '<div class="demo-wrap">' + inner +
+    '<div class="demo-cap">' + escapeHtml(demo.title) + " — animated movement demo</div></div>";
 }
 
 function demoSvg(demo){

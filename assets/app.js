@@ -884,10 +884,10 @@ function openExerciseInfo(index){
   }
   if(!exercise) return;
 
-  const demo = DEMOS[demoKeyFor(exercise)] || DEMOS.generic;
+  const demoKey = demoKeyFor(exercise);
+  const demo = DEMOS[demoKey] || DEMOS.generic;
   const tempo = tempoInfo(exercise);
-  let html = '<div class="demo-wrap">' + demoSvg(demo) +
-    '<div class="demo-cap">' + escapeHtml(demo.title) + " — simplified movement animation</div></div>";
+  let html = demoAnimHtml(demoKey);
 
   html += '<div class="mini-card"><span class="label">How to do it</span><ol class="steps">' +
     demo.steps.map(function(step){ return "<li>" + escapeHtml(step) + "</li>"; }).join("") +
@@ -920,6 +920,34 @@ function openExerciseInfo(index){
   $("infoModal").classList.remove("hidden");
 }
 function closeExerciseInfo(){ $("infoModal").classList.add("hidden"); }
+
+/* Lightweight version of the info popup for warm-up, finisher and cooldown
+   moves while their timers are running — just the name and the animated
+   demo, since sets/reps/tempo/muscle data doesn't apply to these moves. */
+function openMoveDemo(name){
+  const key = demoKeyFor([name]);
+  $("infoName").textContent = name;
+  $("infoBody").innerHTML = demoAnimHtml(key);
+  $("infoModal").classList.remove("hidden");
+}
+function openWarmupDemo(){
+  const s = session();
+  if(!s) return;
+  const item = warmupFor(todayEntry()).items[s.warmIndex];
+  if(item) openMoveDemo(item.name);
+}
+function openFinisherDemo(){
+  const s = session();
+  if(!s) return;
+  const item = FINISHER.items[s.finIndex];
+  if(item) openMoveDemo(item.name);
+}
+function openCooldownDemo(){
+  const s = session();
+  if(!s) return;
+  const item = cooldownFor(todayEntry()).items[s.coolIndex];
+  if(item) openMoveDemo(item.name);
+}
 
 function tagFor(exercise){
   const category = exercise[8];
