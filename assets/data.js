@@ -174,189 +174,100 @@ const COOLDOWNS = [
 ];
 
 /* =========================================================================
-   2b. MOVEMENT DEMONSTRATIONS
-   Animated SVG stick figures, one per movement pattern, built from two or three
-   poses interpolated with SMIL. No image files and no network requests, so the
-   app stays a single self-contained static page.
-   Coordinates are in a 100x100 viewBox; the floor sits at y=92.
-   body   = neck -> hip -> knee -> ankle
-   arm    = shoulder -> elbow -> hand
-   load   = the barbell / dumbbell, drawn at the hand
+   2b. MOVEMENT EXPLANATIONS
+   Plain-language, step-by-step explanation for each movement pattern, shown
+   in a simple popup — no animation or image, so it always just works.
    ========================================================================= */
-/* Free Lottie animations (lottiefiles.com, Lottie Simple License — self-hosting
-   permitted, attribution encouraged not required). A few movement patterns had
-   no dedicated free animation on LottieFiles, so they reuse the closest match:
-   benchPress -> pushup, lateralRaise -> overheadPress, calfRaise/carry -> generic. */
-const DEMO_LOTTIE = {
-  squat:"assets/lotties/squat.json",
-  hinge:"assets/lotties/hinge.json",
-  lunge:"assets/lotties/lunge.json",
-  bridge:"assets/lotties/bridge.json",
-  benchPress:"assets/lotties/pushup.json",
-  pushup:"assets/lotties/pushup.json",
-  overheadPress:"assets/lotties/overheadPress.json",
-  row:"assets/lotties/row.json",
-  lateralRaise:"assets/lotties/overheadPress.json",
-  curl:"assets/lotties/curl.json",
-  calfRaise:"assets/lotties/generic.json",
-  sidePlank:"assets/lotties/sidePlank.json",
-  deadBug:"assets/lotties/deadBug.json",
-  carry:"assets/lotties/generic.json",
-  generic:"assets/lotties/generic.json"
-};
-
 const DEMOS = {
   squat:{
-    title:"Squat pattern", dur:"3s",
+    title:"Squat pattern",
     steps:["Brace, then push the hips back and let the knees bend.",
            "Keep the whole foot planted and the knees tracking over the toes.",
-           "Descend to a comfortable depth, then stand up through hips and legs together."],
-    head:{cx:["45","51","45"], cy:["17","24","17"]},
-    body:["45,25 45,53 45,71 45,87 55,90","51,31 38,59 57,72 46,87 56,90","45,25 45,53 45,71 45,87 55,90"],
-    arm:["45,29 38,40 43,48","51,35 45,48 49,54","45,29 38,40 43,48"],
-    load:{cx:["43","49","43"], cy:["48","54","48"], r:4.5}
+           "Descend to a comfortable depth, then stand up through hips and legs together."]
   },
   hinge:{
-    title:"Hip hinge pattern", dur:"3s",
+    title:"Hip hinge pattern",
     steps:["Brace, soften the knees and push the hips straight back.",
            "Keep the bar close to the legs and the spine neutral throughout.",
-           "Stop where the hamstrings limit you, then drive the hips forward to stand."],
-    head:{cx:["45","67","45"], cy:["17","33","17"]},
-    body:["45,25 45,53 45,71 45,87 55,90","61,37 39,53 43,71 45,87 55,90","45,25 45,53 45,71 45,87 55,90"],
-    arm:["45,29 45,43 45,57","59,41 57,55 55,67","45,29 45,43 45,57"],
-    load:{cx:["45","55","45"], cy:["57","67","57"], r:4.5}
+           "Stop where the hamstrings limit you, then drive the hips forward to stand."]
   },
   lunge:{
-    title:"Lunge / split squat pattern", dur:"3s",
+    title:"Lunge / split squat pattern",
     steps:["Step back and lower under control, torso tall.",
            "Keep the front foot flat and the knee tracking over the toes.",
-           "Use a pain-free range, then drive back up through the front leg."],
-    head:{cx:["45","47","45"], cy:["17","21","17"]},
-    body:["45,25 45,53 45,71 45,87 55,90","47,29 45,57 57,73 55,87 64,90","45,25 45,53 45,71 45,87 55,90"],
-    arm:["45,29 43,43 43,57","47,33 45,47 45,61","45,29 43,43 43,57"],
-    load:{cx:["43","45","43"], cy:["57","61","57"], r:4.5}
+           "Use a pain-free range, then drive back up through the front leg."]
   },
   bridge:{
-    title:"Hip thrust / bridge pattern", dur:"2.6s",
+    title:"Hip thrust / bridge pattern",
     steps:["Ribs down and a gentle posterior pelvic tilt before you lift.",
            "Drive through the heels and squeeze the glutes at the top.",
-           "Stop at a straight line — no arching the lower back."],
-    head:{cx:["23","23","23"], cy:["73","73","73"]},
-    body:["30,74 52,84 66,70 66,88 74,90","30,74 52,65 66,63 66,88 74,90","30,74 52,84 66,70 66,88 74,90"],
-    arm:["30,76 40,84 48,87","30,76 40,79 48,79","30,76 40,84 48,87"],
-    load:{cx:["52","52","52"], cy:["78","59","78"], r:4.5}
+           "Stop at a straight line — no arching the lower back."]
   },
   benchPress:{
-    title:"Horizontal press pattern", dur:"3s",
+    title:"Horizontal press pattern",
     steps:["Set the shoulder blades down and back, feet planted.",
            "Lower under control toward the lower-mid chest.",
-           "Press back up without letting the shoulders roll forward."],
-    prop:[22,62,52,6],
-    head:{cx:["29","29","29"], cy:["55","55","55"]},
-    body:["36,57 58,59 70,70 74,86 81,89","36,57 58,59 70,70 74,86 81,89","36,57 58,59 70,70 74,86 81,89"],
-    arm:["36,57 38,45 40,33","36,57 27,51 40,51","36,57 38,45 40,33"],
-    load:{cx:["40","40","40"], cy:["33","51","33"], r:4.5}
+           "Press back up without letting the shoulders roll forward."]
   },
   pushup:{
-    title:"Push-up pattern", dur:"3s",
+    title:"Push-up pattern",
     steps:["Hands on the bench, body in one straight line from head to heels.",
            "Brace the trunk and lower with the elbows about 30–45° from the body.",
-           "Press away without letting the hips sag or pike."],
-    prop:[10,56,24,6],
-    head:{cx:["37","37","37"], cy:["43","49","43"]},
-    body:["42,56 60,68 72,77 84,86 90,88","42,62 60,72 72,80 84,88 90,90","42,56 60,68 72,77 84,86 90,88"],
-    arm:["42,56 32,58 22,58","42,62 33,66 22,58","42,56 32,58 22,58"],
-    load:null
+           "Press away without letting the hips sag or pike."]
   },
   overheadPress:{
-    title:"Overhead press pattern", dur:"3s",
+    title:"Overhead press pattern",
     steps:["Glutes tight, ribs down, brace before you press.",
            "Drive the bar straight up — no leaning back to finish the rep.",
-           "Lower under control back to the shoulders."],
-    head:{cx:["45","45","45"], cy:["19","19","19"]},
-    body:["45,27 45,54 45,71 45,87 55,90","45,27 45,54 45,71 45,87 55,90","45,27 45,54 45,71 45,87 55,90"],
-    arm:["45,29 35,38 41,30","45,29 48,18 49,7","45,29 35,38 41,30"],
-    load:{cx:["41","49","41"], cy:["30","7","30"], r:4.5}
+           "Lower under control back to the shoulders."]
   },
   row:{
-    title:"Horizontal pull pattern", dur:"3s",
+    title:"Horizontal pull pattern",
     steps:["Hinge forward, brace hard and hold a neutral spine.",
            "Pull the elbow toward the hip — the torso stays still.",
-           "Control the weight all the way back down."],
-    head:{cx:["69","69","69"], cy:["35","35","35"]},
-    body:["63,39 41,53 43,71 45,87 55,90","63,39 41,53 43,71 45,87 55,90","63,39 41,53 43,71 45,87 55,90"],
-    arm:["61,41 61,57 61,73","61,41 68,53 61,59","61,41 61,57 61,73"],
-    load:{cx:["61","61","61"], cy:["73","59","73"], r:4.5}
+           "Control the weight all the way back down."]
   },
   lateralRaise:{
-    title:"Raise pattern", dur:"3s",
+    title:"Raise pattern",
     steps:["Light dumbbells, no swinging or body English.",
            "Raise smoothly to about shoulder height.",
-           "Lower slowly — the eccentric is the point."],
-    head:{cx:["45","45","45"], cy:["17","17","17"]},
-    body:["45,25 45,53 45,71 45,87 55,90","45,25 45,53 45,71 45,87 55,90","45,25 45,53 45,71 45,87 55,90"],
-    arm:["45,29 45,43 45,57","45,29 33,35 21,31","45,29 45,43 45,57"],
-    load:{cx:["45","21","45"], cy:["57","31","57"], r:4.5}
+           "Lower slowly — the eccentric is the point."]
   },
   curl:{
-    title:"Curl pattern", dur:"3s",
+    title:"Curl pattern",
     steps:["Upper arm stays relatively fixed — no swinging.",
            "Curl up under control and keep the wrist neutral.",
-           "Lower all the way back to a full stretch."],
-    head:{cx:["45","45","45"], cy:["17","17","17"]},
-    body:["45,25 45,53 45,71 45,87 55,90","45,25 45,53 45,71 45,87 55,90","45,25 45,53 45,71 45,87 55,90"],
-    arm:["45,29 45,43 45,57","45,29 45,43 36,31","45,29 45,43 45,57"],
-    load:{cx:["45","36","45"], cy:["57","31","57"], r:4.5}
+           "Lower all the way back to a full stretch."]
   },
   calfRaise:{
-    title:"Calf raise pattern", dur:"2.6s",
+    title:"Calf raise pattern",
     steps:["Stable foot, comfortable full stretch at the bottom.",
            "Rise onto the toes and pause at the top.",
-           "Lower slowly — never bounce out of the bottom."],
-    head:{cx:["45","45","45"], cy:["17","8","17"]},
-    body:["45,25 45,53 45,71 45,87 57,91","45,16 45,44 45,62 45,76 57,91","45,25 45,53 45,71 45,87 57,91"],
-    arm:["45,29 45,43 45,58","45,20 45,34 45,49","45,29 45,43 45,58"],
-    load:{cx:["45","45","45"], cy:["63","54","63"], r:4.5}
+           "Lower slowly — never bounce out of the bottom."]
   },
   sidePlank:{
-    title:"Side plank pattern", dur:"3s",
+    title:"Side plank pattern",
     steps:["Elbow under the shoulder, body in one long straight line.",
            "Squeeze the glute and keep the ribs stacked over the pelvis.",
-           "Hold — do not let the hip sag toward the floor."],
-    head:{cx:["25","25","25"], cy:["51","46","51"]},
-    body:["31,57 51,72 63,80 75,87 81,89","31,52 51,66 63,74 75,83 81,85","31,57 51,72 63,80 75,87 81,89"],
-    arm:["31,57 29,79 39,86","31,52 29,79 39,86","31,57 29,79 39,86"],
-    load:null
+           "Hold — do not let the hip sag toward the floor."]
   },
   deadBug:{
-    title:"Dead bug pattern", dur:"3.4s",
+    title:"Dead bug pattern",
     steps:["Ribs down, brace, and gently flatten the lower back.",
            "Extend the opposite arm and leg slowly while you exhale.",
-           "Only go as far as you can without the lower back lifting."],
-    head:{cx:["26","26","26"], cy:["84","84","84"]},
-    body:["34,84 58,84 62,62 48,60 42,59","34,84 58,84 66,68 84,74 90,75","34,84 58,84 62,62 48,60 42,59"],
-    arm:["34,82 30,68 30,54","34,82 22,72 12,66","34,82 30,68 30,54"],
-    load:null
+           "Only go as far as you can without the lower back lifting."]
   },
   carry:{
-    title:"Loaded carry / hold pattern", dur:"2.4s",
+    title:"Loaded carry / hold pattern",
     steps:["Stand tall — do not lean toward the weight.",
            "Brace the trunk and keep the shoulders level.",
-           "Breathe steadily for the prescribed time."],
-    head:{cx:["45","45","45"], cy:["17","15","17"]},
-    body:["45,25 45,53 45,71 45,87 55,90","45,23 45,51 45,69 45,87 55,90","45,25 45,53 45,71 45,87 55,90"],
-    arm:["45,29 45,43 45,59","45,27 45,41 45,57","45,29 45,43 45,59"],
-    load:{cx:["45","45","45"], cy:["64","62","64"], r:4.5}
+           "Breathe steadily for the prescribed time."]
   },
   generic:{
-    title:"Movement pattern", dur:"2.6s",
+    title:"Movement pattern",
     steps:["Brace before the first rep and set your position.",
            "Move under control through a comfortable range.",
-           "Keep the tempo steady and stop short of failure."],
-    head:{cx:["45","45","45"], cy:["17","20","17"]},
-    body:["45,25 45,53 45,71 45,87 55,90","45,28 45,56 45,72 45,87 55,90","45,25 45,53 45,71 45,87 55,90"],
-    arm:["45,29 43,43 43,57","45,32 43,46 43,60","45,29 43,43 43,57"],
-    load:{cx:["43","43","43"], cy:["57","60","57"], r:4.5}
+           "Keep the tempo steady and stop short of failure."]
   }
 };
 
@@ -379,41 +290,13 @@ function demoKeyFor(exercise){
   return "generic";
 }
 
-/* Animated movement demo as a Lottie player, wrapped the same way the old
-   SVG demo was. Falls back to the SVG stick-figure loop if a Lottie source
-   is ever missing, so the popup never renders empty. */
-function demoAnimHtml(key){
+/* Plain-language "how to do it" block, shared by the main exercise popup
+   and the lightweight warm-up/finisher/cooldown popup. */
+function demoStepsHtml(key){
   const demo = DEMOS[key] || DEMOS.generic;
-  const src = DEMO_LOTTIE[key] || DEMO_LOTTIE.generic;
-  const inner = src
-    ? '<lottie-player src="' + escapeHtml(src) + '" background="transparent" speed="1" ' +
-      'class="demo-lottie" autoplay loop></lottie-player>'
-    : demoSvg(demo);
-  return '<div class="demo-wrap">' + inner +
-    '<div class="demo-cap">' + escapeHtml(demo.title) + " — animated movement demo</div></div>";
-}
-
-function demoSvg(demo){
-  const anim = (attr, values) =>
-    '<animate attributeName="' + attr + '" values="' + values.join(";") +
-    '" dur="' + demo.dur + '" repeatCount="indefinite" calcMode="spline" ' +
-    'keySplines=".4 0 .2 1;.4 0 .2 1" keyTimes="0;0.5;1"></animate>';
-  let svg = '<svg viewBox="0 0 100 100" class="demo-svg" role="img" aria-label="' +
-    escapeHtml(demo.title) + ' animation">';
-  svg += '<line class="demo-ground" x1="8" y1="92" x2="92" y2="92"></line>';
-  if(demo.prop){
-    svg += '<rect class="demo-prop" x="' + demo.prop[0] + '" y="' + demo.prop[1] +
-      '" width="' + demo.prop[2] + '" height="' + demo.prop[3] + '" rx="2"></rect>';
-  }
-  svg += '<circle class="demo-head" r="6" cx="' + demo.head.cx[0] + '" cy="' + demo.head.cy[0] + '">' +
-    anim("cx", demo.head.cx) + anim("cy", demo.head.cy) + "</circle>";
-  svg += '<polyline class="demo-line" points="' + demo.body[0] + '">' + anim("points", demo.body) + "</polyline>";
-  svg += '<polyline class="demo-line" points="' + demo.arm[0] + '">' + anim("points", demo.arm) + "</polyline>";
-  if(demo.load){
-    svg += '<circle class="demo-load" r="' + (demo.load.r || 5) + '" cx="' + demo.load.cx[0] +
-      '" cy="' + demo.load.cy[0] + '">' + anim("cx", demo.load.cx) + anim("cy", demo.load.cy) + "</circle>";
-  }
-  return svg + "</svg>";
+  return '<div class="mini-card"><span class="label">' + escapeHtml(demo.title) + '</span><ol class="steps">' +
+    demo.steps.map(function(step){ return "<li>" + escapeHtml(step) + "</li>"; }).join("") +
+    "</ol></div>";
 }
 
 /* Shared posture / pelvic-control finisher. Runs after the main workout and

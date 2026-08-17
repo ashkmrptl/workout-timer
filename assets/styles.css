@@ -286,6 +286,7 @@ body[data-compact="1"] .app{height:100vh;height:100dvh;display:flex;flex-directi
   padding-top:calc(10px + env(safe-area-inset-top));
   padding-bottom:calc(86px + env(safe-area-inset-bottom))}
 body[data-compact="1"] .top{margin-bottom:10px}
+body[data-compact="1"] #workoutTab{flex:1;display:flex;flex-direction:column;min-height:0}
 body[data-compact="1"] .screen{flex:1;display:flex;flex-direction:column;min-height:0}
 
 .mini-head{display:flex;align-items:center;gap:9px;margin-bottom:11px}
@@ -339,15 +340,6 @@ body[data-compact="1"] .screen{flex:1;display:flex;flex-direction:column;min-hei
   line-height:1;display:inline-grid;place-items:center;background:var(--surface3);color:#a8b3ca;border-color:var(--line2);flex:0 0 auto}
 .info-btn:hover{color:var(--text);border-color:var(--accent)}
 .prev-item .info-btn{margin-left:2px}
-.demo-wrap{background:var(--surface2);border:1px solid var(--line);border-radius:14px;padding:6px;margin-bottom:12px}
-.demo-svg{width:100%;max-width:250px;aspect-ratio:1;display:block;margin:auto}
-.demo-lottie{width:100%;max-width:250px;aspect-ratio:1;display:block;margin:auto}
-.demo-line{fill:none;stroke:var(--accent);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round}
-.demo-head{fill:none;stroke:var(--accent);stroke-width:3.4}
-.demo-load{fill:var(--warn)}
-.demo-ground{stroke:var(--line2);stroke-width:2;stroke-linecap:round}
-.demo-prop{fill:var(--surface3);stroke:var(--line2);stroke-width:1.5}
-.demo-cap{text-align:center;font-size:11px;color:var(--dim);padding:0 6px 4px}
 .steps{margin:0;padding-left:20px;font-size:13.5px;line-height:1.6;color:#dbe1ee}
 .steps li{margin-bottom:5px}
 

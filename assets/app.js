@@ -887,9 +887,7 @@ function openExerciseInfo(index){
   const demoKey = demoKeyFor(exercise);
   const demo = DEMOS[demoKey] || DEMOS.generic;
   const tempo = tempoInfo(exercise);
-  let html = demoAnimHtml(demoKey);
-
-  html += '<div class="mini-card"><span class="label">How to do it</span><ol class="steps">' +
+  let html = '<div class="mini-card"><span class="label">How to do it</span><ol class="steps">' +
     demo.steps.map(function(step){ return "<li>" + escapeHtml(step) + "</li>"; }).join("") +
     "</ol></div>";
 
@@ -922,12 +920,12 @@ function openExerciseInfo(index){
 function closeExerciseInfo(){ $("infoModal").classList.add("hidden"); }
 
 /* Lightweight version of the info popup for warm-up, finisher and cooldown
-   moves while their timers are running — just the name and the animated
-   demo, since sets/reps/tempo/muscle data doesn't apply to these moves. */
+   moves while their timers are running — just the name and a plain-language
+   explanation, since sets/reps/tempo/muscle data doesn't apply to these moves. */
 function openMoveDemo(name){
   const key = demoKeyFor([name]);
   $("infoName").textContent = name;
-  $("infoBody").innerHTML = demoAnimHtml(key);
+  $("infoBody").innerHTML = demoStepsHtml(key);
   $("infoModal").classList.remove("hidden");
 }
 function openWarmupDemo(){
