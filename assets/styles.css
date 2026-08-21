@@ -300,17 +300,19 @@ body[data-compact="1"] .screen{flex:1;display:flex;flex-direction:column;min-hei
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mini-btn{min-height:32px;padding:6px 10px;font-size:12px;border-radius:10px}
 
-/* circular timers, side by side */
+/* circular timers, side by side — the time sits inside the ring, the label
+   ("Warm-up left", "This move", …) sits below it as its own line. */
 .rings{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
-.dial{position:relative;display:grid;place-items:center;background:var(--surface);
-  border:1px solid var(--line);border-radius:var(--r-sm);padding:3px 2px}
-.dial svg{width:100%;max-width:60px;aspect-ratio:1;display:block;transform:rotate(-90deg)}
+.dial{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px 3px 5px}
+.dial-circle{position:relative;width:100%;max-width:60px}
+.dial svg{width:100%;aspect-ratio:1;display:block;transform:rotate(-90deg)}
 .dial circle{fill:none;stroke-width:7;stroke-linecap:round}
 .dial .dial-bg{stroke:var(--surface3)}
 .dial .dial-fg{stroke:var(--phase);stroke-dasharray:276.46;stroke-dashoffset:0;transition:stroke-dashoffset .3s linear}
-.dial-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0 3px}
+.dial-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 3px}
 .dial-time{font-size:clamp(9px,3vw,12px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
-.dial-label{font-size:5.5px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.1}
+.dial-label{font-size:8.5px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.15}
 .dial.is-main .dial-fg{stroke:var(--main)}
 .dial.is-main .dial-time{color:var(--main)}
 .dial.is-rest .dial-fg{stroke:var(--rest)}
