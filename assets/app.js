@@ -259,7 +259,15 @@ function exList(entry){
   return W[variation][dayIndex].ex;
 }
 function warmupFor(entry){ return WARMUPS[safeDay(entry.day)]; }
-function cooldownFor(entry){ return COOLDOWNS[safeDay(entry.day)]; }
+function overrideFor(entry){ return OVERRIDES[safeWeek(entry.variation) + ":" + safeDay(entry.day)]; }
+function cooldownFor(entry){
+  const o = overrideFor(entry);
+  return (o && o.cooldown) || COOLDOWNS[safeDay(entry.day)];
+}
+function finisherFor(entry){
+  const o = overrideFor(entry);
+  return (o && o.finisher) || FINISHER;
+}
 
 function blankSession(){
   return {
@@ -647,7 +655,7 @@ function finishMain(manual){
 function startFinisher(){
   const entry = todayEntry(), s = session();
   if(!entry || !s) return;
-  const items = FINISHER.items;
+  const items = finisherFor(entry).items;
   s.phase = "finisher";
   s.finIndex = 0;
   s.finRemaining = items[0].secs;
@@ -660,9 +668,9 @@ function startFinisher(){
   say("Finisher. " + items[0].name + ".");
 }
 function finNext(manual){
-  const s = session();
-  if(!s || s.phase !== "finisher") return;
-  const items = FINISHER.items;
+  const entry = todayEntry(), s = session();
+  if(!entry || !s || s.phase !== "finisher") return;
+  const items = finisherFor(entry).items;
   if(s.finIndex < items.length - 1){
     s.finIndex++;
     s.finRemaining = items[s.finIndex].secs;
@@ -676,9 +684,9 @@ function finNext(manual){
   }
 }
 function finPrev(){
-  const s = session();
-  if(!s || s.phase !== "finisher") return;
-  const items = FINISHER.items;
+  const entry = todayEntry(), s = session();
+  if(!entry || !s || s.phase !== "finisher") return;
+  const items = finisherFor(entry).items;
   s.finIndex = Math.max(0, s.finIndex - 1);
   s.finRemaining = items[s.finIndex].secs;
   Sound.play("movementChange");
@@ -937,7 +945,7 @@ function openWarmupDemo(){
 function openFinisherDemo(){
   const s = session();
   if(!s) return;
-  const item = FINISHER.items[s.finIndex];
+  const item = finisherFor(todayEntry()).items[s.finIndex];
   if(item) openMoveDemo(item.name);
 }
 function openCooldownDemo(){
@@ -1136,10 +1144,12 @@ function renderOverview(){
 
   const plan = W[week][day];
   const warm = WARMUPS[day];
-  const cool = COOLDOWNS[day];
+  const pseudoEntry = {variation:week, day:day};
+  const cool = cooldownFor(pseudoEntry);
+  const fin = finisherFor(pseudoEntry);
   const warmSecs = sumSecs(warm.items);
   const coolSecs = sumSecs(cool.items);
-  const finSecs = sumSecs(FINISHER.items);
+  const finSecs = sumSecs(fin.items);
   const totalSets = plan.ex.reduce(function(total, ex){ return total + repsCount(ex[1]); }, 0);
 
   $("ovName").textContent = plan.name;
@@ -1263,17 +1273,19 @@ function renderMainComplete(){
     : "";
   $("notesInput").value = entry.notes || "";
   const cool = cooldownFor(entry);
-  $("mcCooldownNote").textContent = FINISHER.title + " — " + fmtApprox(sumSecs(FINISHER.items)) +
+  const fin = finisherFor(entry);
+  $("mcCooldownNote").textContent = fin.title + " — " + fmtApprox(sumSecs(fin.items)) +
     " of light control work, then a " + fmtApprox(sumSecs(cool.items)) + " " + cool.title.toLowerCase() +
     ". Neither counts toward the 45 minutes.";
 }
 
 function renderFinisher(){
-  const s = session();
-  const items = FINISHER.items;
+  const entry = todayEntry(), s = session();
+  const fin = finisherFor(entry);
+  const items = fin.items;
   const item = items[s.finIndex];
   $("finStep").textContent = "Finisher: " + (s.finIndex + 1) + " of " + items.length;
-  $("finTitle").textContent = FINISHER.title;
+  $("finTitle").textContent = fin.title;
   $("finName").textContent = item.name;
   $("finDose").textContent = item.dose;
   $("finCue").textContent = item.cue;
@@ -1372,7 +1384,7 @@ function renderClocks(){
       setRing("ctxRing", target ? done / target : 0);
     }
   }else if(s.phase === "finisher"){
-    paintMovementDials(FINISHER.items, s.finIndex, s.finRemaining, "fin");
+    paintMovementDials(finisherFor(entry).items, s.finIndex, s.finRemaining, "fin");
   }else if(s.phase === "cooldown"){
     paintMovementDials(cooldownFor(entry).items, s.coolIndex, s.coolRemaining, "cool");
   }
@@ -1527,7 +1539,8 @@ window.addEventListener("beforeunload", function(){ save(); });
 loadSettings();
 syncSettingsUI();
 
-(function boot(){
+loadProgramData().then(function(){
+  $("bootLoading").classList.add("hidden");
   const saved = localStorage.getItem(PROFILE_KEY);
   if(saved && getProfiles().indexOf(saved) >= 0){
     chooseProfile(saved);
@@ -1535,4 +1548,7 @@ syncSettingsUI();
     renderProfileList();
     $("profileGate").classList.remove("hidden");
   }
-})();
+}).catch(function(err){
+  console.error("Failed to load workout data", err);
+  $("bootLoading").textContent = "Couldn't load workout data. Check your connection and reload the page.";
+});
