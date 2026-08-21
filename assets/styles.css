@@ -305,14 +305,14 @@ body[data-compact="1"] .screen{flex:1;display:flex;flex-direction:column;min-hei
 .rings{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
 .dial{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:4px 3px 5px}
-.dial-circle{position:relative;width:100%;max-width:60px}
+.dial-circle{position:relative;width:100%;max-width:90px}
 .dial svg{width:100%;aspect-ratio:1;display:block;transform:rotate(-90deg)}
 .dial circle{fill:none;stroke-width:7;stroke-linecap:round}
 .dial .dial-bg{stroke:var(--surface3)}
 .dial .dial-fg{stroke:var(--phase);stroke-dasharray:276.46;stroke-dashoffset:0;transition:stroke-dashoffset .3s linear}
-.dial-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 3px}
-.dial-time{font-size:clamp(9px,3vw,12px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
-.dial-label{font-size:8.5px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.15}
+.dial-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 4px}
+.dial-time{font-size:clamp(13px,4.5vw,18px);font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.dial-label{font-size:10px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.15}
 .dial.is-main .dial-fg{stroke:var(--main)}
 .dial.is-main .dial-time{color:var(--main)}
 .dial.is-rest .dial-fg{stroke:var(--rest)}
